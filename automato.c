@@ -66,7 +66,7 @@ Bool AFestadoFinal(AF af,int e)
 
 Bool AFchecaAFD(AF af)
 {
-    
+    /*******************/
 }
 
 Bool AFchecaAFv(AF af)
