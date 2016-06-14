@@ -32,6 +32,12 @@ AF AFcria(char *alfabeto)
 AF AFdestroi(AF af)
 {
     
+    
+    
+    
+    
+    
+    
 }
 
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
