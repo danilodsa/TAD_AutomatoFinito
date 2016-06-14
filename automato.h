@@ -85,4 +85,3 @@ void AFsalva(AF af, char* nomedoarquivo);
 AF AFcarrega(char* nomedoarquivo);
 
 #endif	/* AUTOMATO_H */
-
