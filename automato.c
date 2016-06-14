@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "automato.h"
+
 AF AFcria(char *alfabeto){
     
 }
@@ -27,11 +29,11 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2){
 }
 
 Bool AFestadoInicial(AF af,int e){
-    
+    return af->estados[e].inicial;
 }
 
 Bool AFestadoFinal(AF af,int e){
-    
+    return af->estados[e].final;
 }
 
 Bool AFchecaAFD(AF af){
