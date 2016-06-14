@@ -89,7 +89,6 @@ void AFsalva(AF af,char *nomeArquivo)
     
 }
 
-AF AFcarrega(char *nomeArquivo)
-{
+AF AFcarrega(char *nomeArquivo){
     
 }
