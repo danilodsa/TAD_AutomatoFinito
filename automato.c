@@ -34,7 +34,7 @@ Bool AFestadoFinal(AF af,int e){
     
 }
 
-Bool AFchecaAFD(A af){
+Bool AFchecaAFD(AF af){
     
 }
 
