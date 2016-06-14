@@ -3,6 +3,8 @@
 #include <string.h>
 #include "automato.h"
 
+
+
 AF AFcria(char *alfabeto)
 {
     AF aux = (AF) malloc(sizeof(AF));
