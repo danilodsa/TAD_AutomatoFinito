@@ -5,7 +5,26 @@
 
 AF AFcria(char *alfabeto)
 {
+    AF aux = (AF) malloc(sizeof(AF));
     
+    if(aux!=NULL)
+    {
+        /*define a quantidade de simbolos de acordo com o alfabeto informado*/
+        aux->num_simbolos = strlen(alfabeto);
+        
+        /*define o tamanho da string de acordo com o alfabeto informado*/
+        aux->alfabeto = (char*) malloc(aux->num_simbolos*sizeof(char));
+        
+        /*passa o alfabeto informado para a estrutura alocada*/
+        strcpy(aux->alfabeto,alfabeto);
+        
+        /*define o numero de estados para zero, uma vez que nao possui
+         nenhum estado*/
+        aux->num_estados = 0;
+        
+        aux->estados = NULL;
+    }
+    return NULL;
 }
 
 AF AFdestroi(AF af)
