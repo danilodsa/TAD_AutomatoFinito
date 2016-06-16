@@ -222,12 +222,64 @@ Bool AFestadoFinal(AF af,int e)
 
 Bool AFchecaAFD(AF af)
 {
-
+    int i, cont;
+    
+    estado aux;
+    Lista transicao;
+    Bool afd = TRUE;
+    
+    aux = af->estados;
+    /*Laco que percorre os estados*/
+    while(aux->prox != NULL)
+    {
+        /*Laco que percorre os simbolos*/
+        for(i=0; i<af->num_simbolos; i++)
+        {
+            cont = 0;
+            transicao = aux->move[i];
+            /*Laco que percorre as transicoes*/
+            while(transicao->prox != NULL)
+            {
+               /*Contador que incrementa a cada transicao de um mesmo simbolo*/
+               cont++; 
+            }
+            /*Caso se tenha apenas uma transicao para cada simbolo em cada estado, é um afd*/
+            /*Caso se tenha mais de uma transicao para o mesmo simbolo, não é afd*/
+            if(cont > 1)
+            {
+                afd = FALSE;
+            }
+        }
+        aux = aux->prox;
+    }
+    return afd;
+    
+    
 }
 
 Bool AFchecaAFv(AF af)
 {
+    int pos;
     
+    estado aux;
+    Bool afv = FALSE;
+    
+    aux = af->estados;
+    /*Recupera a posicao do movimento vazio, geralmente a ultima do vetor de simbolos*/
+    pos = retorna_index(af, '\0');
+    
+    /*Percorre todos os estados*/
+    while(aux->prox != NULL)
+    {
+        /*Já com a posicao do vazio conhecida, verifica se essa posicao aponta para alguma transicao
+         * ou seja, verifica se exite alguma transicao para o movimento vazio "\0"*/
+        if(aux->move[pos].prox != NULL)
+        {
+            afv = TRUE;
+        }
+        aux = aux->prox;
+    } 
+    return afv;
 }
 
 int AFmoveAFD(AF af,int e,char s)
