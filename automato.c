@@ -147,6 +147,10 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     int i, pos;
     estado aux;
     estado manipulado;
+    
+    Lista atual;
+    Lista anterior;
+    
     pos = retorna_index(af, s);
     
     aux->prox = af->estados;
@@ -164,11 +168,18 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     }
     /*Ao fim do laco, o estado a ser manipulado devera ter sido encontrado.*/
     
-    while(manipulado->move[pos].numero != e2)
+    atual = manipulado->move[pos];
+    
+    while(atual->numero != e2)
     {
-        /**/
+        anterior = atual;
+        atual = atual->prox;
     }
+    /*Ao fim do while, já se obtem a posicao onde está a transicao*/
  
+    anterior->prox = atual->prox;
+    free(atual);
+    
 }
 
 Bool AFestadoInicial(AF af,int e)
