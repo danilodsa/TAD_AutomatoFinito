@@ -12,30 +12,22 @@ AF AFcria(char *alfabeto)
         /*define a quantidade de simbolos de acordo com o alfabeto informado*/
         aux->num_simbolos = strlen(alfabeto);
         
+        /*define o numero de estados para zero, uma vez que nao possui
+         nenhum estado*/
+        aux->num_estados = 0;
+        
         /*define o tamanho do vetor de alfabeto
          *de acordo com a quantidade de simbolos*/
         aux->alfabeto = (char*) malloc(aux->num_simbolos*sizeof(char));
         
         /*passa o alfabeto informado para a estrutura do Automato*/
         strcpy(aux->alfabeto,alfabeto);
+
+        /*seta o automato como sem nenhum estados*/
+        aux->estados = NULL;
         
-        /*define o numero de estados para zero, uma vez que nao possui
-         nenhum estado*/
-        aux->num_estados = 0;
-        
-        /*Nao sei o q eu fiz aqui*/
-        aux->estados->inicial = FALSE;
-        
-        /*Nao sei o q eu fiz aqui*/
-        aux->estados->final = FALSE;
-        
-        /*seta o ponteiro para NULL ja que incialmente nao possui nehum
-         estado*/
-        aux->estados->move = NULL;
-        
-        /*numero de estados total*/
-        aux->estados->numero = 0;
-        
+        /*retorna a estrutura alocada*/
+        return aux;
     }
     return NULL;
 }
@@ -63,7 +55,15 @@ AF AFdestroi(AF af)
 
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
-    
+    if(AF!=NULL)
+    {
+        /*incrementa mais 1 toda vez q um estado e criado*/
+        af->num_estados++;
+        
+        af->estados->inicial = inicial;
+        af->estados->final = final;
+        af->estados->numero = e;        
+    }
 }
 
 void AFdestroiEstado(AF af,int e)
