@@ -63,6 +63,21 @@ AF AFdestroi(AF af)
 
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
+    estado aux;
+    estado novo;
+    /*Aux recee o primeiro estado da lista, para percorre-la*/
+    aux = af->estados;
+    
+    while(aux->prox != NULL)
+    {
+        aux = aux->prox;
+    }
+    novo->inicial = inicial;
+    novo->final = final;
+    novo->numero = e;
+    aux->prox = novo;
+    
+    /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
     
 }
 
@@ -83,12 +98,40 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
 
 Bool AFestadoInicial(AF af,int e)
 {
+    estado aux;
+    
+    /*aux recebe o primeiro estado da lista de estados*/
+    aux = af->estados;
+    /*Laco para percorrer a lista de estados*/
+    while(aux->prox != NULL)
+    {
+        /*Busca o estado*/
+        if(aux->numero == e)
+        {
+            /*Apos encontrar o estado, informa se ele e inicial*/
+            return aux->inicial;
+        }
+        aux = aux->prox;
+    }
     
 }
 
 Bool AFestadoFinal(AF af,int e)
 {
-    
+    estado aux;   
+    /*aux recebe o primeiro estado da lista de estados*/
+    aux = af->estados;
+    /*Laco para percorrer a lista de estados*/
+    while(aux->prox != NULL)
+    {
+        /*Busca o estado*/
+        if(aux->numero == e)
+        {
+            /*Apos encontrar o estado, informa se ele e final*/
+            return aux->final;
+        }
+        aux = aux->prox;
+    }
 }
 
 Bool AFchecaAFD(AF af)

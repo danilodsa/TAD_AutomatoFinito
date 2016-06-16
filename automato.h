@@ -12,7 +12,6 @@ typedef enum _bool Bool;
 typedef struct Taf *AF;
 typedef struct Tnodolista *Lista;
 typedef struct Testado *estado;
-
 enum _bool 
 {
    FALSE = 0,
@@ -33,7 +32,7 @@ struct Taf
     char* alfabeto;
     /*Numero de estados do AF*/
     int num_estados;
-    /*Lista de estados do AF*/
+    /*Lista de estados do AF (Aponta para o primeiro estado da lista de estados)*/
     struct Testado *estados;
 };
 
@@ -47,6 +46,8 @@ struct Testado
     Bool final;
     /*vetordelistas , mapeia : Símbolo −−> Estado+*/
     Lista move[];
+    /*Ponteiro para o proximo elemento da Lista de estados*/
+    struct Testado *prox;
 };
 
 /*Cria um automato*/
