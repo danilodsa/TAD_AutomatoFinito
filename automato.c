@@ -55,15 +55,7 @@ AF AFdestroi(AF af)
 
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
-    if(AF!=NULL)
-    {
-        /*incrementa mais 1 toda vez q um estado e criado*/
-        af->num_estados++;
-        
-        af->estados->inicial = inicial;
-        af->estados->final = final;
-        af->estados->numero = e;        
-    }
+    
 }
 
 void AFdestroiEstado(AF af,int e)
