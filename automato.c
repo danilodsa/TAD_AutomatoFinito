@@ -166,7 +166,7 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     while(manipulado->move[pos].numero != e2)
     {
-        
+        /**/
     }
  
 }
