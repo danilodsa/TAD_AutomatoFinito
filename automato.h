@@ -8,7 +8,6 @@
 #ifndef AUTOMATO_H
 #define	AUTOMATO_H
 
-
 typedef enum _bool Bool;
 typedef struct Taf *AF;
 typedef struct Tnodolista *Lista;
@@ -28,18 +27,26 @@ struct Tnodolista
 
 struct Taf 
 {
-    int num_simbolos;   /*Tamanho do alfabeto sem lambda*/
-    char* alfabeto;     /*String com simbolos do alfabeto*/
-    int num_estados;    /*Numero de estados do AF*/
-    struct Testado *estados; /*Lista de estados do AF*/           
+    /*Tamanho do alfabeto sem lambda*/
+    int num_simbolos;
+    /*String com simbolos do alfabeto*/
+    char* alfabeto;
+    /*Numero de estados do AF*/
+    int num_estados;
+    /*Lista de estados do AF*/
+    struct Testado *estados;
 };
 
 struct Testado
 {
-    int numero;     /*numero identificador do estado*/
-    Bool inicial;   /*Informa se o estado e inicial*/
-    Bool final;     /*Informa se o estado e final*/
-    Lista move[];   /*vetordelistas , mapeia : Símbolo −−> Estado+*/
+    /*numero identificador do estado*/
+    int numero;
+    /*Informa se o estado e inicial*/
+    Bool inicial;
+    /*Informa se o estado e final*/
+    Bool final;
+    /*vetordelistas , mapeia : Símbolo −−> Estado+*/
+    Lista move[];
 };
 
 /*Cria um automato*/
