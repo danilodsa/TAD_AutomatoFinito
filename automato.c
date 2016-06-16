@@ -75,8 +75,8 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     novo->inicial = inicial;
     novo->final = final;
     novo->numero = e;
-    aux->prox = novo;
-    
+    aux->prox = novo;    
+    af->num_estados++;
     /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
     
 }
