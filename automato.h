@@ -46,7 +46,7 @@ struct Testado
     /*Informa se o estado e final*/
     Bool final;
     /*vetordelistas , mapeia : Símbolo −−> Estado+*/
-    Lista move[];
+    Lista* move;
 };
 
 /*Cria um automato*/
