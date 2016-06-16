@@ -3,6 +3,11 @@
 #include <string.h>
 #include "automato.h"
 
+/*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
+int retorna_index(AF af, char s);
+
+
+
 AF AFcria(char *alfabeto)
 {
     AF aux = (AF) malloc(sizeof(AF));
@@ -71,11 +76,8 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     aux->prox = novo; 
     
     /*Alocacao da matriz de estados*/
-    novo->move = (Lista**) malloc(af->num_simbolos * sizeof(Lista*));
-    for(i=0; i<af->num_simbolos; i++)
-    {
-        novo->move[i] = (Lista*) malloc(af->num_estados * sizeof(Lista));
-    }
+    novo->move = (Lista) malloc(af->num_simbolos * sizeof(Lista));
+   
     af->num_estados++;
     /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
     
@@ -107,40 +109,66 @@ void AFdestroiEstado(AF af,int e)
 
 void AFcriaTransicao(AF af,int e1,char s,int e2)
 {
-    int i;
+    int i, pos;
     estado aux;
-    estado mexido;
+    estado manipulado;
+    /*Variavel transicao guarda a nova transicao*/
+    Lista transicao;
     
     aux = af->estados;
     
     
-    
+   /*Encontra o estado que sera manipulado*/ 
     while(aux->prox != NULL)
     {
         if(aux->numero == e1)
         {
-           mexido = aux; 
+           manipulado = aux; 
+        }
+        else
+        {
+            aux = aux->prox;
+        }
+    }  
+    /*Pos será o identificador do simbolo referente ao vetor de simbolos*/
+    pos = retorna_index(af, s);
+    
+    /*transicao*/
+    transicao->prox = manipulado->move[pos].prox;
+    /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
+    transicao->numero = e2;  
+    manipulado->move[pos] = transicao;
+    /*Escreve a transicao no vetor de transicoes*/
+     
+}
+
+void AFdestroiTransicao(AF af,int e1,char s,int e2)
+{
+    int i, pos;
+    estado aux;
+    estado manipulado;
+    pos = retorna_index(af, s);
+    
+    aux->prox = af->estados;
+    /*Encontra o estado que sera manipulado*/
+    while(aux->prox != NULL)
+    {
+        if(aux->numero == e1)
+        {
+            manipulado = aux;
         }
         else
         {
             aux = aux->prox;
         }
     }
+    /*Ao fim do laco, o estado a ser manipulado devera ter sido encontrado.*/
     
-    
-    
-    for(i=0; i<af->num_simbolos; i++)
+    while(manipulado->move[pos].numero != e2)
     {
-        if(strcmp(af->alfabeto[i], s) == 0)
-        {
-            
-        }
+        
     }
-}
-
-void AFdestroiTransicao(AF af,int e1,char s,int e2)
-{
-    
+ 
 }
 
 Bool AFestadoInicial(AF af,int e)
@@ -209,4 +237,18 @@ void AFsalva(AF af,char *nomeArquivo)
 AF AFcarrega(char *nomeArquivo)
 {
 
+}
+
+
+int retorna_index(AF af, char s)
+{
+    int i;
+    
+    for(i=0; i<af->num_simbolos; i++)
+    {
+        if(strcmp(af->alfabeto[i], s) == 0)
+        {
+            return i;
+        }
+    }
 }
