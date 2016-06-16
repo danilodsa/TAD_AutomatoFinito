@@ -45,7 +45,7 @@ struct Testado
     /*Informa se o estado e final*/
     Bool final;
     /*vetordelistas , mapeia : Símbolo −−> Estado+*/
-    Lista move[];
+    Lista* move;
     /*Ponteiro para o proximo elemento da Lista de estados*/
     struct Testado *prox;
 };
