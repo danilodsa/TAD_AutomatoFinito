@@ -57,7 +57,8 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
     estado aux;
     estado novo;
-    /*Aux recee o primeiro estado da lista, para percorre-la*/
+    int i;
+    /*Aux recebe o primeiro estado da lista, para percorre-la*/
     aux = af->estados;
     
     while(aux->prox != NULL)
@@ -67,7 +68,14 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     novo->inicial = inicial;
     novo->final = final;
     novo->numero = e;
-    aux->prox = novo;    
+    aux->prox = novo; 
+    
+    /*Alocacao da matriz de estados*/
+    novo->move = (Lista**) malloc(af->num_simbolos * sizeof(Lista*));
+    for(i=0; i<af->num_simbolos; i++)
+    {
+        novo->move[i] = (Lista*) malloc(af->num_estados * sizeof(Lista));
+    }
     af->num_estados++;
     /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
     
@@ -75,12 +83,59 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 
 void AFdestroiEstado(AF af,int e)
 {
+    estado aux;
+    estado anterior;
     
+    anterior = af->estados;
+    aux = anterior->prox;
+    
+    while(aux->prox != NULL)
+    {
+        if(aux->numero == e)
+        {
+            anterior->prox = aux->prox; 
+            free(aux);
+        }
+        else
+        {
+            anterior = aux;
+            aux = aux->prox;
+        }
+    }
+
 }
 
 void AFcriaTransicao(AF af,int e1,char s,int e2)
 {
+    int i;
+    estado aux;
+    estado mexido;
     
+    aux = af->estados;
+    
+    
+    
+    while(aux->prox != NULL)
+    {
+        if(aux->numero == e1)
+        {
+           mexido = aux; 
+        }
+        else
+        {
+            aux = aux->prox;
+        }
+    }
+    
+    
+    
+    for(i=0; i<af->num_simbolos; i++)
+    {
+        if(strcmp(af->alfabeto[i], s) == 0)
+        {
+            
+        }
+    }
 }
 
 void AFdestroiTransicao(AF af,int e1,char s,int e2)
