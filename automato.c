@@ -361,15 +361,13 @@ AF AFnegacao(AF af)
     
     while(aux->prox != NULL)
     {
-        if((aux->inicial == TRUE) && (aux->final == FALSE))
+        if(aux->final == TRUE)
         {
-            aux->inicial = FALSE;
-            aux->final = TRUE;
-        }
-        else if((aux->inicial == FALSE) && (aux->final == TRUE))
-        {
-            aux->inicial = TRUE;
             aux->final = FALSE;
+        }
+        else
+        {
+            aux->final = TRUE;
         }
     }
 }
