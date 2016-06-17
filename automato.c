@@ -76,7 +76,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     aux->prox = novo; 
     
     /*Alocacao da matriz de estados*/
-    novo->move = (Lista) malloc(af->num_simbolos * sizeof(Lista));
+    novo->move = (Lista*) malloc(af->num_simbolos * sizeof(Lista));
    
     af->num_estados++;
     /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
