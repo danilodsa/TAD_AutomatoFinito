@@ -134,7 +134,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     pos = retorna_index(af, s);
     
     /*transicao*/
-    transicao->prox = manipulado->move[pos].prox;
+    transicao->prox = manipulado->move[pos]->prox;
     /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
     transicao->numero = e2;  
     manipulado->move[pos] = transicao;
@@ -273,7 +273,7 @@ Bool AFchecaAFv(AF af)
     {
         /*Já com a posicao do vazio conhecida, verifica se essa posicao aponta para alguma transicao
          * ou seja, verifica se exite alguma transicao para o movimento vazio "\0"*/
-        if(aux->move[pos].prox != NULL)
+        if(aux->move[pos]->prox != NULL)
         {
             afv = TRUE;
         }
