@@ -104,6 +104,7 @@ void AFdestroiEstado(AF af,int e)
             aux = aux->prox;
         }
     }
+    af->num_estados--;
 
 }
 
@@ -286,7 +287,7 @@ Bool AFchecaAFv(AF af)
 
 int AFmoveAFD(AF af,int e,char s)
 {
-    int i;
+    int pos;
     estado aux;
     estado manipulado;
     Lista transicao;
@@ -305,16 +306,33 @@ int AFmoveAFD(AF af,int e,char s)
     }
     /*Ao fim do laco, ja se tem o estado e*/
     
-    retorna_index(af, s);
+    pos = retorna_index(af, s);
     
+    transicao = manipulado->move[pos];
+    if(transicao->prox != NULL)
+    {
+        return transicao->prox->numero;
+    }
     
-    
-
 }
 
 Lista AFfecho(AF af,Lista e,char s)
 {
+    Lista retorno;
+    Lista aux;
     
+    retorno = (Lista) malloc(sizeof(Lista));
+    
+    aux = e;
+    
+    while(aux->prox = NULL)
+    {
+        retorno->numero = AFmoveAFD(af,aux->numero,s);
+        retorno = retorno->prox;
+        aux = aux->prox;
+    }
+    return retorno;
+       
 }
 
 void AFsalva(AF af,char *nomeArquivo)
