@@ -373,3 +373,36 @@ AF AFnegacao(AF af)
         }
     }
 }
+
+AF AFuniao(AF af1, AF af2)
+{
+    AF af3;
+    estado aux;
+    estado novo;
+    
+    novo = (estado) malloc(sizeof(estado));
+    
+    novo = af3->estados;
+    
+    aux = af1->estados;
+    while(aux->prox != NULL)
+    {
+        
+    }
+    
+}
+
+AF AFrenumera(AF af)
+{
+    estado aux;
+    int i = 1;
+    
+    aux = af->estados;
+    
+    while(aux->prox != NULL)
+    {
+        aux->numero = i;
+        i++;
+        aux = aux->prox;    
+    }
+}
