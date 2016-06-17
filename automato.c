@@ -4,7 +4,7 @@
 #include "automato.h"
 
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
-int retorna_index(AF af, char s);
+static int retorna_index(AF af, char s);
 
 
 
@@ -114,6 +114,8 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     estado manipulado;
     /*Variavel transicao guarda a nova transicao*/
     Lista transicao;
+    
+    manipulado = (Lista) malloc (sizeof(Lista));
     
     aux = af->estados;
     
@@ -284,7 +286,30 @@ Bool AFchecaAFv(AF af)
 
 int AFmoveAFD(AF af,int e,char s)
 {
+    int i;
+    estado aux;
+    estado manipulado;
+    Lista transicao;
     
+    aux = af->estados;
+    while(aux->prox != NULL)
+    {
+        if(aux->numero == e)
+        {
+            manipulado = aux;
+        }
+        else
+        {
+            aux = aux->prox;
+        }
+    }
+    /*Ao fim do laco, ja se tem o estado e*/
+    
+    retorna_index(af, s);
+    
+    
+    
+
 }
 
 Lista AFfecho(AF af,Lista e,char s)
@@ -303,7 +328,7 @@ AF AFcarrega(char *nomeArquivo)
 }
 
 
-int retorna_index(AF af, char s)
+static int retorna_index(AF af, char s)
 {
     int i;
     
