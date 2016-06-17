@@ -358,3 +358,27 @@ static int retorna_index(AF af, char s)
         }
     }
 }
+
+
+/******************************************************************************/
+
+AF AFnegacao(AF af)
+{
+    estado aux;
+    
+    aux = af->estados;
+    
+    while(aux->prox != NULL)
+    {
+        if((aux->inicial == TRUE) && (aux->final == FALSE))
+        {
+            aux->inicial = FALSE;
+            aux->final = TRUE;
+        }
+        else if((aux->inicial == FALSE) && (aux->final == TRUE))
+        {
+            aux->inicial = TRUE;
+            aux->final = FALSE;
+        }
+    }
+}
