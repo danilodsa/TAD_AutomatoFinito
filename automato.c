@@ -6,8 +6,6 @@
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
 
-
-
 AF AFcria(char *alfabeto)
 {
     AF aux = (AF) malloc(sizeof(AF));
@@ -60,27 +58,20 @@ AF AFdestroi(AF af)
 
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
-    estado aux;
     estado novo;
-    int i;
-    /*Aux recebe o primeiro estado da lista, para percorre-la*/
-    aux = af->estados;
+    /*aloca estrutura para o novo automato*/
+    novo = (estado) malloc(sizeof(struct Testado));
     
-    while(aux->prox != NULL)
-    {
-        aux = aux->prox;
-    }
-    novo->inicial = inicial;
-    novo->final = final;
-    novo->numero = e;
-    aux->prox = novo; 
+        novo->numero = e;
+        novo->inicial = inicial;
+        novo->final = final;
+        novo->prox = af->estados;
+
+    /*aponta para o novo nodo criado*/
+    af->estados = novo;
     
-    /*Alocacao da matriz de estados*/
-    novo->move = (Lista*) malloc(af->num_simbolos * sizeof(Lista));
-   
+    /*incremento da quantidade de estados*/
     af->num_estados++;
-    /*VERIFICAR LANCE DE CRIACAO DA LISTA DE MOVIMENTOS*/
-    
 }
 
 void AFdestroiEstado(AF af,int e)

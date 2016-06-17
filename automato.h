@@ -24,7 +24,7 @@ struct Tnodolista
     struct Tnodolista *prox;
 };
 
-struct Taf 
+struct Taf
 {
     /*Tamanho do alfabeto sem lambda*/
     int num_simbolos;
