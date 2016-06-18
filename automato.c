@@ -120,9 +120,8 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     
     aux = af->estados;
     
-    
    /*Encontra o estado que sera manipulado*/ 
-    while(aux->prox != NULL)
+    while(aux->prox!=NULL)
     {
         if(aux->numero == e1)
         {
@@ -132,7 +131,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
         {
             aux = aux->prox;
         }
-    }  
+    }
     /*Pos será o identificador do simbolo referente ao vetor de simbolos*/
     pos = retorna_index(af, s);
     
@@ -346,17 +345,19 @@ AF AFcarrega(char *nomeArquivo)
 }
 
 
-static int retorna_index(AF af, char s)
+static int retorna_index(AF af,char s)
 {
     int i;
+    char* ptr;
+    int posi;
+        
+    i = (int*) s;
     
-    for(i=0; i<af->num_simbolos; i++)
-    {
-        if(strcmp(af->alfabeto[i], s) == 0)
-        {
-            return i;
-        }
-    }
+    ptr = strchr(af->alfabeto,i);
+    
+    posi = ptr - af->alfabeto;
+    
+    return posi;
 }
 
 
