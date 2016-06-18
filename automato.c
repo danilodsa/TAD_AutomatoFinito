@@ -116,7 +116,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     /*Variavel transicao guarda a nova transicao*/
     Lista transicao;
     
-    manipulado = (Lista) malloc (sizeof(Lista));
+    transicao = (Lista) malloc(sizeof(Lista));
     
     aux = af->estados;
     
@@ -139,6 +139,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     transicao->prox = manipulado->move[pos]->prox;
     /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
     transicao->numero = e2;  
+    
     manipulado->move[pos] = transicao;
     /*Escreve a transicao no vetor de transicoes*/
      
