@@ -55,23 +55,34 @@ AF AFdestroi(AF af)
         free(af);
     }
 }
-
+/*(af->num_simbolos+1)*/
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 {
+    int i;
     estado novo;
     /*aloca estrutura para o novo automato*/
     novo = (estado) malloc(sizeof(struct Testado));
+    novo->move = (Lista*) malloc(sizeof(Lista));
     
-        novo->numero = e;
-        novo->inicial = inicial;
-        novo->final = final;
-        novo->prox = af->estados;
-
-    /*aponta para o novo nodo criado*/
+    for(i=0; i<(af->num_simbolos+1); i++)
+    {
+        novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
+    }
+    
+    novo->numero = e;
+    novo->inicial = inicial;
+    novo->final = final;
+    
+    
+    novo->prox = af->estados;
     af->estados = novo;
+    /*aponta para o novo nodo criado*/
+    
+    
     
     /*incremento da quantidade de estados*/
     af->num_estados++;
+    
 }
 
 void AFdestroiEstado(AF af,int e)
@@ -114,33 +125,36 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     estado aux;
     estado manipulado;
     /*Variavel transicao guarda a nova transicao*/
-    Lista transicao;
+    Lista nova_transicao;
     
-    transicao = (Lista) malloc(sizeof(Lista));
+    nova_transicao = (Lista) malloc(sizeof(Lista));
+    
+    nova_transicao->numero = e2;
     
     aux = af->estados;
     
    /*Encontra o estado que sera manipulado*/ 
-    while(aux->prox!=NULL)
+    while(aux != NULL)
     {
         if(aux->numero == e1)
         {
-           manipulado = aux; 
+           manipulado = aux;
         }
         else
         {
             aux = aux->prox;
         }
     }
+    
     /*Pos será o identificador do simbolo referente ao vetor de simbolos*/
     pos = retorna_index(af, s);
     
     /*transicao*/
-    transicao->prox = manipulado->move[pos]->prox;
+    nova_transicao->prox = manipulado->move[pos];
     /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
-    transicao->numero = e2;  
+  
     
-    manipulado->move[pos] = transicao;
+    manipulado->move[pos] = nova_transicao;
     /*Escreve a transicao no vetor de transicoes*/
      
 }
