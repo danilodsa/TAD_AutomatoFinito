@@ -5,11 +5,13 @@
 
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
+static AF AFrenumeraPlus(AF af, int n);
+static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2);
 
 AF AFcria(char *alfabeto)
 {
     AF aux = (AF) malloc(sizeof(AF));
-    
+        
     if(aux!=NULL)
     {
         /*define a quantidade de simbolos de acordo com o alfabeto informado*/
@@ -334,7 +336,7 @@ Lista AFfecho(AF af,Lista e,char s)
     
     aux = e;
     
-    while(aux->prox = NULL)
+    while(aux != NULL)
     {
         retorno->numero = AFmoveAFD(af,aux->numero,s);
         retorno = retorno->prox;
@@ -344,14 +346,145 @@ Lista AFfecho(AF af,Lista e,char s)
        
 }
 
-void AFsalva(AF af,char *nomeArquivo)
-{
+void AFsalva(AF af,char *nomeArquivo){
+  FILE *file;
+  int j;
+  Lista aux;
+  Testado *pAux;
+  
+  file = fopen(nomeArquivo,"w");
+
+  fprintf(file, "\"%s\" %d\n",af->alfabeto,af->num_estados);
+  
+  pAux = af->estados;
+
+  while(pAux != NULL){
+    if((pAux->inicial == TRUE)&&(pAux->final == TRUE)){
+       fprintf(file, "%d %c %c\n",pAux->numero,'i','f');      
     
+    }else if((pAux->inicial == TRUE)&&(pAux->final == FALSE)){
+      fprintf(file, "%d %c\n",pAux->numero,'i');
+    
+    }else if ((pAux->inicial == FALSE)&&(pAux->final == TRUE)){
+       fprintf(file, "%d %c\n",pAux->numero,'f');   
+    
+    }else if ((pAux->inicial == FALSE)&&(pAux->final == FALSE)){
+       fprintf(file, "%d\n",pAux->numero);   
+
+    }
+    pAux = pAux->prox;
+  }
+
+     pAux = af->estados;
+
+     while(pAux != NULL){ 
+      for (j = 0; j < af->num_simbolos; ++j){
+         fprintf(file, "%d \"%c\" ",pAux->numero,af->alfabeto[j]);
+
+         if(pAux->move[j] != NULL){
+            fprintf(file, "%d \n",pAux->move[j]->numero);            
+         }
+
+         if(pAux->move[j] != NULL){
+           aux = pAux->move[j]->prox;
+           while(aux != NULL){
+              fprintf(file, "%d \"%c\" %d \n",pAux->numero,af->alfabeto[j],aux->numero);
+              aux = aux->prox;             
+            }
+          }
+      }
+      pAux = pAux->prox;
+   }
+
+    fclose(file);
+
 }
 
-AF AFcarrega(char *nomeArquivo)
-{
+AF AFcarrega(char* nomeArquivo){
 
+   AF novoAf;
+   FILE *file;
+   char aux;
+   char alfabeto[300];
+   int i=0;   
+   int num_est=0;
+   int estado=0;
+   int est_dest=0; 
+
+   file = fopen(nomeArquivo,"rt");
+  
+   if(file == NULL){
+    exit(1); 
+   }  
+
+   aux = fgetc(file);
+   
+   while(aux != '\n'){
+     aux = fgetc(file);
+      
+     if(aux != '"'){
+       alfabeto[i] = aux;
+       i++;
+     }        
+ 
+     else{
+       aux = fscanf(file,"%d",&num_est);
+       aux = fgetc(file);   
+     } 
+   }
+
+    novoAf = AFcria(alfabeto);
+    
+   for(i=0; i< num_est;i++){
+      fscanf(file,"%d",&estado);
+      aux = fgetc(file);
+      if(aux ==' '){
+        aux = fgetc(file);
+        if(aux == 'i'){ /*No caso do arquivo vir i e depois f na leitura de estados*/
+          aux = fgetc(file);
+          if(aux == ' '){
+            aux = fgetc(file);
+            if(aux == 'f'){
+             AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/  
+            }           
+          }else AFcriaEstado(novoAf, estado,TRUE,FALSE);/*Somente estado inicial*/
+
+        }else  /*no caso do arquivo vir f e depois i em vez de i f */
+                 if(aux =='f'){
+                  aux = fgetc(file);
+                  if(aux == ' '){
+                   aux = fgetc(file);
+                   if(aux == 'i'){
+                    AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/
+                    }
+
+                  }else AFcriaEstado(novoAf, estado,FALSE,TRUE);  /*O estado é somente final*/ 
+                }    
+                    
+     }else{ AFcriaEstado(novoAf, estado,FALSE,FALSE); /*estado que não é nem incial e nem final*/
+           }         
+
+   } /*for tipo de estados*/
+
+   aux = ' '; /*garantia que irá entrar no primeiro laço*/
+   while(aux != EOF){
+
+     fscanf(file,"%d",&estado);
+     fgetc(file);/*espaço*/ 
+     fgetc(file);/*espas*/
+     aux = fgetc(file);
+     fgetc(file); fgetc(file);/*espas e espaço*/
+     fscanf(file,"%d",&est_dest);
+
+     AFcriaTransicao(novoAf,estado,aux,est_dest);
+
+     aux = fgetc(file);
+
+   }/*while estados*/
+
+     fclose(file);
+
+    return(novoAf);
 }
 
 
@@ -394,19 +527,61 @@ AF AFnegacao(AF af)
 
 AF AFuniao(AF af1, AF af2)
 {
+    int pos;
     AF af3;
-    estado aux;
-    estado novo;
+    estado auxf3;
+    estado aux;    
     
-    novo = (estado) malloc(sizeof(estado));
     
-    novo = af3->estados;
+    af1 = AFrenumeraPlus(af1, 10);
+    af2 = AFrenumeraPlus(af2, 20);
     
+    
+    
+    char* alfabeto3;
+    
+    strcpy(alfabeto3, concatenaAlfabetos(af1->alfabeto, af2->alfabeto));    
+    
+    af3 = AFcria(alfabeto3);
+    
+    AFcriaEstado(af3, 1, TRUE, FALSE);
+    
+    auxf3 = af3->estados;
     aux = af1->estados;
-    while(aux->prox != NULL)
+    
+    while(aux != NULL)
     {
+        auxf3 = aux;
+        auxf3->inicial == FALSE;
+        aux = aux->prox;
+        auxf3 = auxf3->prox;
         
+        if(aux->inicial == TRUE)
+        {
+            AFcriaTransicao(af3, 1, '\0', aux->numero);
+        }
+    
     }
+    
+    
+    aux = af2->estados;
+    
+    while(aux != NULL)
+    {
+        auxf3 = aux;
+        auxf3->inicial == FALSE;
+        aux = aux->prox;
+        auxf3 = auxf3->prox;
+        
+        if(aux->inicial == TRUE)
+        {
+            AFcriaTransicao(af3, 1, '\0', aux->numero);
+        }        
+    }
+    af3->num_estados = af1->num_estados + af2->num_estados + 1;
+    af3->num_simbolos = strlen(alfabeto3);
+    
+    return af3;
     
 }
 
@@ -417,10 +592,32 @@ AF AFrenumera(AF af)
     
     aux = af->estados;
     
-    while(aux->prox != NULL)
+    while(aux != NULL)
     {
         aux->numero = i;
         i++;
         aux = aux->prox;    
     }
 }
+
+static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
+{
+    
+}
+
+/*Renumera o automato a partir de um numero informado*/
+static AF AFrenumeraPlus(AF af, int n)
+{
+        estado aux;
+    int i = 1;
+    
+    aux = af->estados;
+    
+    while(aux != NULL)
+    {
+        aux->numero = n;
+        n++;
+        aux = aux->prox;    
+    }
+}
+
