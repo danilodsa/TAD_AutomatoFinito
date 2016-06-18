@@ -138,24 +138,19 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
     {
         if(aux->numero == e1)
         {
-           manipulado = aux;
+            /*Pos será o identificador do simbolo referente ao vetor de simbolos*/
+            pos = retorna_index(af, s);
+
+            /*transicao*/
+            nova_transicao->prox = aux->move[pos];
+            /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
+
+
+            aux->move[pos] = nova_transicao;
+            /*Escreve a transicao no vetor de transicoes*/        
         }
-        else
-        {
-            aux = aux->prox;
-        }
+        aux = aux->prox;
     }
-    
-    /*Pos será o identificador do simbolo referente ao vetor de simbolos*/
-    pos = retorna_index(af, s);
-    
-    /*transicao*/
-    nova_transicao->prox = manipulado->move[pos];
-    /*transicao será o primeiro elemento para qual o elemento->move[pos] irá apontar*/
-  
-    
-    manipulado->move[pos] = nova_transicao;
-    /*Escreve a transicao no vetor de transicoes*/
      
 }
 
