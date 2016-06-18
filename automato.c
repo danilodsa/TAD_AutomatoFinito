@@ -77,26 +77,35 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 void AFdestroiEstado(AF af,int e)
 {
     estado aux;
-    estado anterior;
     
-    anterior = af->estados;
-    aux = anterior->prox;
+    aux = af->estados;
     
-    while(aux->prox != NULL)
+    if(aux->numero == e)
     {
-        if(aux->numero == e)
+        af->estados = aux->prox;
+        free(aux);
+        aux = NULL;
+    }
+    else
+    {
+        estado anterior;
+        anterior = aux;
+        while(aux!=NULL)
         {
-            anterior->prox = aux->prox; 
-            free(aux);
-        }
-        else
-        {
-            anterior = aux;
-            aux = aux->prox;
+            if(aux->numero == e)
+            {
+                anterior->prox = aux->prox;
+                free(aux);
+                aux = NULL;
+            }
+            else
+            {
+                anterior = aux;
+                aux = aux->prox;
+            }
         }
     }
     af->num_estados--;
-
 }
 
 void AFcriaTransicao(AF af,int e1,char s,int e2)
