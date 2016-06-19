@@ -343,7 +343,6 @@ Lista AFfecho(AF af,Lista e,char s)
         aux = aux->prox;
     }
     return retorno;
-       
 }
 
 void AFsalva(AF af,char *nomeArquivo){
@@ -620,4 +619,3 @@ static AF AFrenumeraPlus(AF af, int n)
         aux = aux->prox;    
     }
 }
-
