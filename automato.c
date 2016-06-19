@@ -345,60 +345,6 @@ Lista AFfecho(AF af,Lista e,char s)
     return retorno;
 }
 
-void AFsalva(AF af,char *nomeArquivo){
-  FILE *file;
-  int j;
-  Lista aux;
-  Testado *pAux;
-  
-  file = fopen(nomeArquivo,"w");
-
-  fprintf(file, "\"%s\" %d\n",af->alfabeto,af->num_estados);
-  
-  pAux = af->estados;
-
-  while(pAux != NULL){
-    if((pAux->inicial == TRUE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c %c\n",pAux->numero,'i','f');      
-    
-    }else if((pAux->inicial == TRUE)&&(pAux->final == FALSE)){
-      fprintf(file, "%d %c\n",pAux->numero,'i');
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c\n",pAux->numero,'f');   
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == FALSE)){
-       fprintf(file, "%d\n",pAux->numero);   
-
-    }
-    pAux = pAux->prox;
-  }
-
-     pAux = af->estados;
-
-     while(pAux != NULL){ 
-      for (j = 0; j < af->num_simbolos; ++j){
-         fprintf(file, "%d \"%c\" ",pAux->numero,af->alfabeto[j]);
-
-         if(pAux->move[j] != NULL){
-            fprintf(file, "%d \n",pAux->move[j]->numero);            
-         }
-
-         if(pAux->move[j] != NULL){
-           aux = pAux->move[j]->prox;
-           while(aux != NULL){
-              fprintf(file, "%d \"%c\" %d \n",pAux->numero,af->alfabeto[j],aux->numero);
-              aux = aux->prox;             
-            }
-          }
-      }
-      pAux = pAux->prox;
-   }
-
-    fclose(file);
-
-}
-
 AF AFcarrega(char* nomeArquivo){
 
    AF novoAf;
@@ -601,7 +547,30 @@ AF AFrenumera(AF af)
 
 static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
 {
+    int i;
+    int j;
+
+    char aux;
     
+    strcat(alfabeto1,alfabeto2);
+    
+    i = 0;
+    
+    for(i=0;i<strlen(alfabeto1);i++)
+    {
+        for(j=i;j<strlen(alfabeto1);j++)
+        {
+            if(alfabeto1[i]==alfabeto1[j+1])
+            {
+                aux = alfabeto1[strlen(alfabeto1)-1];
+                alfabeto1[strlen(alfabeto1)-1] = alfabeto1[j+1];
+                alfabeto1[j+1] = aux;
+                alfabeto1[strlen(alfabeto1)-1] = '\0';
+            }
+        }
+    }
+    
+    return alfabeto1;
 }
 
 /*Renumera o automato a partir de um numero informado*/
