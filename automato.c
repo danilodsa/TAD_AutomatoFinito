@@ -621,7 +621,30 @@ AF AFrenumera(AF af)
 
 static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
 {
+    int i;
+    int j;
+
+    char aux;
     
+    strcat(alfabeto1,alfabeto2);
+    
+    i = 0;
+    
+    for(i=0;i<strlen(alfabeto1);i++)
+    {
+        for(j=i;j<strlen(alfabeto1);j++)
+        {
+            if(alfabeto1[i]==alfabeto1[j+1])
+            {
+                aux = alfabeto1[strlen(alfabeto1)-1];
+                alfabeto1[strlen(alfabeto1)-1] = alfabeto1[j+1];
+                alfabeto1[j+1] = aux;
+                alfabeto1[strlen(alfabeto1)-1] = '\0';
+            }
+        }
+    }
+    
+    return alfabeto1;
 }
 
 /*Renumera o automato a partir de um numero informado*/
