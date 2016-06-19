@@ -708,7 +708,7 @@ AF AFminimiza(AF af)
                 {
                     /*caso os movimentos em questao (de estados diferentes) sejam iguais
                      * por exemplo: {(4 "x" 5), (4 "y" 3)} e {(5 "x" 5), (5 "y" 3)}.*/
-                    if(aux->move[i].numero == auxfixo->move[i].numero)
+                    if(aux->move[i]->numero == auxfixo->move[i]->numero)
                     {
                         /*Se a posicao referente na matriz estiver guardando um -1
                          * significa que é a primeira transicao a ser verificada,
@@ -729,7 +729,7 @@ AF AFminimiza(AF af)
                     }
                     /*Caso os estados sejam equivalentes, a posicao subsequente recebe 
                      * o tamanho do alfabeto -1, para que ele possa ser decrementado caso existam mais estados equivalentes*/
-                    else if((matriz[auxfixo->move[i].numero][aux->move[i].numero] ==1) && (matriz[auxfixo->numero][aux->numero] == -1))
+                    else if((matriz[auxfixo->move[i]->numero][aux->move[i]->numero] ==1) && (matriz[auxfixo->numero][aux->numero] == -1))
                     {
                         matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;                        
                     }
@@ -737,7 +737,7 @@ AF AFminimiza(AF af)
                      * o numero contido na posicao da matriz e decrementado. 
                      * Se ao fim da iteracao esse numero for ZERO, significa que todos os estados 
                      * referentes as transicoes dos dois estados susequentes sao equivalentes*/
-                    else if((matriz[auxfixo->move[i].numero][aux->move[i].numero] ==1) && (matriz[auxfixo->numero][aux->numero] != -1))
+                    else if((matriz[auxfixo->move[i]->numero][aux->move[i]->numero] ==1) && (matriz[auxfixo->numero][aux->numero] != -1))
                     {
                         matriz[auxfixo->numero][aux->numero]--;
                     }
