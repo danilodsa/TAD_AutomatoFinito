@@ -350,7 +350,7 @@ void AFsalva(AF af,char *nomeArquivo){
   FILE *file;
   int j;
   Lista aux;
-  Testado *pAux;
+  estado pAux;
   
   file = fopen(nomeArquivo,"w");
 
@@ -531,36 +531,49 @@ AF AFuniao(AF af1, AF af2)
     AF af3;
     estado auxf3;
     estado aux;    
-    
-    
-    af1 = AFrenumeraPlus(af1, 10);
-    af2 = AFrenumeraPlus(af2, 20);
-    
-    
-    
+
+    /*Juncao dos alfabetos do af1 e af2*/
     char* alfabeto3;
     
+    /*Renumera os estados do primeiro automato a partir de 10*/
+    AFrenumeraPlus(af1, 10);
+    
+    /*Renumera os estados do segundo automato a partir de 20*/
+    AFrenumeraPlus(af2, 20);
+    
+    
+    /*funcao de juncao dos alfabetos*/
     strcpy(alfabeto3, concatenaAlfabetos(af1->alfabeto, af2->alfabeto));    
     
+    /*cria o novo automato*/
     af3 = AFcria(alfabeto3);
     
+    /*cria o novo estado inicial, que tem a transiação 'vazio' para os estados iniciais dos outros dois automatos*/
     AFcriaEstado(af3, 1, TRUE, FALSE);
+    
+    /*cria o novo estado final, que recebe a transicao 'vazio' dos estados finais dos outros dois automatos*/
+    AFcriaEstado(af3, 2, FALSE, TRUE);
     
     auxf3 = af3->estados;
     aux = af1->estados;
     
+    
     while(aux != NULL)
     {
         auxf3 = aux;
-        auxf3->inicial == FALSE;
-        aux = aux->prox;
-        auxf3 = auxf3->prox;
         
-        if(aux->inicial == TRUE)
+        if(auxf3->inicial == TRUE)
         {
-            AFcriaTransicao(af3, 1, '\0', aux->numero);
+            AFcriaTransicao(af3, 1, '\0', auxf3->numero);
+            auxf3->inicial == FALSE;
         }
-    
+        if(auxf3->final == TRUE)
+        {
+            AFcriaTransicao(af3, auxf3->numero, '\0', 2);
+            auxf3->final = FALSE;
+        }
+        aux = aux->prox;
+        auxf3 = auxf3->prox;   
     }
     
     
@@ -569,16 +582,22 @@ AF AFuniao(AF af1, AF af2)
     while(aux != NULL)
     {
         auxf3 = aux;
-        auxf3->inicial == FALSE;
-        aux = aux->prox;
-        auxf3 = auxf3->prox;
         
-        if(aux->inicial == TRUE)
+        if(auxf3->inicial == TRUE)
         {
-            AFcriaTransicao(af3, 1, '\0', aux->numero);
-        }        
+            AFcriaTransicao(af3, 1, '\0', auxf3->numero);
+            auxf3->inicial == FALSE;
+        }
+        if(auxf3->final == TRUE)
+        {
+            AFcriaTransicao(af3, auxf3->numero, '\0', 2);
+            auxf3->final = FALSE;
+        }
+        aux = aux->prox;
+        auxf3 = auxf3->prox;   
     }
-    af3->num_estados = af1->num_estados + af2->num_estados + 1;
+    
+    af3->num_estados = af1->num_estados + af2->num_estados + 2;
     af3->num_simbolos = strlen(alfabeto3);
     
     return af3;
@@ -620,4 +639,114 @@ static AF AFrenumeraPlus(AF af, int n)
         aux = aux->prox;    
     }
 }
+
+AF AFminimiza(AF af)
+{
+    int i,j;
+    int tam = af->num_estados + 1;
+    int matriz[tam][tam];
+    
+    estado aux;
+    estado auxfixo;
+    
+    
+    AFrenumera(af);
+
+    /*atribui -1 a todas as posicoes da matriz*/
+    for(i=0; i<tam; i++)
+    {
+        for(j=0; j<tam; j++)
+        {
+            matriz[i][j] = -1;
+        }
+    }
+    
+    
+    auxfixo = af->estados;
+    aux = af->estados;
+    
+  /****************************************************************************/
+  /******************Criacao da matriz de equivalencias************************/ 
+  /****************************************************************************/  
+    while(auxfixo != NULL)
+    {
+        while(aux != NULL)
+        {
+            /*Verifica se os estados em questao não sao o mesmo estado*/
+            if(aux != auxfixo)
+            {
+                /*Verifica se um e estado final e outro nao. Quando isso acontece, automaticamente não sao equivalentes*/
+                if(auxfixo->final != aux->final)
+                {
+                    matriz[auxfixo->numero][aux->numero] = 1;
+                }
+                /*Verificacao de equivalencia dos movimentos*/
+                for(i=0; i<af->num_simbolos; i++)
+                {
+                    /*caso os movimentos em questao (de estados diferentes) sejam iguais
+                     * por exemplo: {(4 "x" 5), (4 "y" 3)} e {(5 "x" 5), (5 "y" 3)}.*/
+                    if(aux->move[i].numero == auxfixo->move[i].numero)
+                    {
+                        /*Se a posicao referente na matriz estiver guardando um -1
+                         * significa que é a primeira transicao a ser verificada,
+                         * entao atribui-se o numero de simbolos -1.*/
+                        if(matriz[auxfixo->numero][aux->numero] == -1)
+                        {
+                            matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;
+                        }
+                        /*Caso nao seja a primeira transicao a ser verifica, e a 
+                         * transicao que esta sendo verificada seja esquivalente, 
+                         * entao o numero que está guardado na matris de equivalencias é decrementado. 
+                         * Se os fim do processo esse numero for ZERO, significa que todos as transicoes 
+                         * são equivalentes e, consequentemente os estados sao equivalentes ( 0 )*/
+                        else
+                        {
+                            matriz[auxfixo->numero][aux->numero]--;
+                        }               
+                    }
+                    /*Caso os estados sejam equivalentes, a posicao subsequente recebe 
+                     * o tamanho do alfabeto -1, para que ele possa ser decrementado caso existam mais estados equivalentes*/
+                    else if((matriz[auxfixo->move[i].numero][aux->move[i].numero] ==1) && (matriz[auxfixo->numero][aux->numero] == -1))
+                    {
+                        matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;                        
+                    }
+                    /*Caso nao seja a primeira transicao a ser verificada e os estados dessa transicao sejam equivalentes 
+                     * o numero contido na posicao da matriz e decrementado. 
+                     * Se ao fim da iteracao esse numero for ZERO, significa que todos os estados 
+                     * referentes as transicoes dos dois estados susequentes sao equivalentes*/
+                    else if((matriz[auxfixo->move[i].numero][aux->move[i].numero] ==1) && (matriz[auxfixo->numero][aux->numero] != -1))
+                    {
+                        matriz[auxfixo->numero][aux->numero]--;
+                    }
+
+                }
+                
+            }
+            aux = aux->prox;
+        }
+        auxfixo = auxfixo->prox;
+    }
+    
+  /****************************************************************************/
+  /**********************Minimizacao do automato*******************************/ 
+  /****************************************************************************/     
+    
+    for(i=0; i<af->num_estados; i++)
+    {
+        for(j=0; j<af->num_estados; j++)
+        {
+            if(i != j)
+            {
+                /*Encontrando estados EQ*/
+                if(matriz[i][j] == 0)
+                {
+                    
+                }
+            }
+        }
+    }
+    
+    
+}
+
 

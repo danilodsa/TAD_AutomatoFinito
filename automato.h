@@ -92,4 +92,7 @@ void AFsalva(AF af, char* nomedoarquivo);
 /*Carrega o automato de um arquivo txt*/
 AF AFcarrega(char* nomedoarquivo);
 
+/*Renumera os estados de um automato partindo do 1*/
+AF AFrenumera(AF af);
+
 #endif	/* AUTOMATO_H */
