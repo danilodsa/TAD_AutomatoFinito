@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "automato.h"
+#define aspa 34
 
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
@@ -10,7 +11,7 @@ static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2);
 
 AF AFcria(char *alfabeto)
 {
-    AF aux = (AF) malloc(sizeof(AF));
+    AF aux = (AF) malloc(sizeof(struct Taf));
         
     if(aux!=NULL)
     {
@@ -69,7 +70,6 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
-        novo->move[i].prox = NULL;
     }
     
     novo->numero = e;
@@ -347,6 +347,163 @@ Lista AFfecho(AF af,Lista e,char s)
        
 }
 
+void AFsalva(AF af,char *nomeArquivo){
+  FILE *arq;
+  Lista aux;
+  estado pAux;
+  
+  arq = fopen(nomeArquivo,"w");
+  
+  if(arq!=NULL)
+  {
+      int i;
+      
+      pAux = af->estados;
+      fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
+      
+      for(i=0;i<af->num_estados;i++)
+      {
+          fprintf(arq,"%i ",pAux->numero);
+          if(pAux->inicial==TRUE)
+          {
+              fprintf(arq,"i\n");
+          }
+          else if(pAux->final==TRUE)
+          {
+              fprintf(arq,"f\n");
+          }
+          else
+          {
+              fprintf(arq,"\n");
+          }
+          pAux = pAux->prox;
+      }
+      
+      pAux = af->estados;
+      
+      while(pAux!=NULL)
+      {
+          for(i=0;i<af->num_simbolos;i++)
+          {
+              while(aux!=NULL)
+              {
+                aux = pAux->move[i];
+                fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
+                aux = pAux->move[i]->prox;
+              }
+          }
+          pAux = pAux->prox;
+      }
+      
+      fclose(arq);
+  }
+}
+
+AF AFcarrega(char* nomeArquivo) {
+    FILE *arq = NULL;
+    AF automato;
+    /*decisão de projeto*/
+    char alfabeto[256];
+    char temp[256];
+    char auxA[20];
+    char *x,*y;
+    char buff;
+    int QuantEstados;
+    int auxX,auxY;
+    
+    arq = fopen(nomeArquivo,"rt");
+    
+    if(arq!=NULL)
+    {        
+        int i;
+        int max = 0; 
+        
+        buff = ' ';
+        
+        while(buff != EOF)
+        {
+            buff=fgetc(arq);
+            
+            if(buff=='\n')
+            {
+                max++;
+            }
+        }
+        fclose(arq);
+        
+        arq = fopen(nomeArquivo,"rt");
+        
+        fscanf(arq,"%s %i",temp,&QuantEstados);
+        
+        /*captura a primeira ocorrencia de aspa*/
+        x = strrchr(temp,aspa);
+        /*captura a segunda ocorrencia de aspa*/
+        y = strchr(temp,aspa);
+        
+        /*calcula quantos caracteres o alfabeto possui*/
+        auxX = x-y-1;
+        
+        for(i=0;i<auxX;i++)
+        {
+            alfabeto[i] = temp[i+1];
+        }
+        
+        /*aloca a memoria necessaria para o automato*/
+        automato = AFcria(alfabeto);
+        
+        if(automato!=NULL)
+        {
+            int i;
+            
+            /*ponta pe incial*/
+            fgets(auxA,20,arq);
+            
+            for(i=0;i<QuantEstados;i++)
+            {
+                fgets(auxA,20,arq);
+                //printf("%c %c\n",auxA[0],auxA[2]);
+                
+                buff = ' ';
+                sscanf(auxA,"%i %c",&auxX,&buff);
+                
+                printf("%i %c\n",auxX,buff);
+                
+                if((buff=='i')||(buff=='f'))
+                {
+                    if(buff=='i')
+                    {
+                        AFcriaEstado(automato,auxX,TRUE,FALSE);
+                    }
+                    if(buff=='f')
+                    {
+                        AFcriaEstado(automato,auxX,FALSE,TRUE);
+                    }
+                }
+                else
+                {
+                    AFcriaEstado(automato,auxX,FALSE,FALSE);
+                }
+            }
+            
+            max = max - QuantEstados - 1;
+            
+            for(i=1;i<max;i++)
+            {
+                fscanf(arq,"%i %s %i",&auxX,auxA,&auxY);
+                printf("%i %s %i\n",auxX,auxA,auxY);
+                
+                AFcriaTransicao(automato,auxX,auxA[1],auxY);
+            }
+        }
+        /*fecha o arquivo*/
+        fclose(arq);
+        return automato;
+    }
+    /*retonar nulo caso não encontre o arquivo*/
+    return NULL;
+}
+
+
 static int retorna_index(AF af,char s)
 {
     int i;
@@ -576,7 +733,7 @@ AF AFminimiza(AF af)
                         {
                             matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;
                         }
-                        /*Caso nao seja a primeira transicao a ser verificada, e a 
+                        /*Caso nao seja a primeira transicao a ser verifica, e a 
                          * transicao que esta sendo verificada seja esquivalente, 
                          * entao o numero que está guardado na matris de equivalencias é decrementado. 
                          * Se os fim do processo esse numero for ZERO, significa que todos as transicoes 
@@ -609,8 +766,6 @@ AF AFminimiza(AF af)
         auxfixo = auxfixo->prox;
     }
     
-    
- 
   /****************************************************************************/
   /**********************Minimizacao do automato*******************************/ 
   /****************************************************************************/     
@@ -622,166 +777,11 @@ AF AFminimiza(AF af)
             if(i != j)
             {
                 /*Encontrando estados EQ*/
-                /*O estado com o maior indice será removido (Decisao de Projeto)*/
                 if(matriz[i][j] == 0)
                 {
-                    if(i > j)
-                    {
-                        estado anterior;
-                        
-                        aux = af->estados;
-                        anterior = af->estados;
-                        /*Percorre os estados do AF ate que se encontre o estado I*/
-                        while(aux != NULL)
-                        {
-                            /*Caso encontre, o estado I é removido*/
-                            if(aux->numero == i)
-                            {
-                                anterior = aux->prox;
-                                free(aux);
-                            }
-                            
-                            int k;
-                            /*Percorre o vetor de transicoes de todos os estados 
-                             * e faz com que todas as transicoes que anteriormente 
-                             * apontavam para I apontem agora para J, pois I e J 
-                             * são equivalentes e I foi removido*/
-                            for(k=0; k<af->num_estados; k++)
-                            {
-                                if(aux->move[k]->numero == i)
-                                {
-                                    aux->move[k]->numero = j;
-                                }
-                            }
-                            anterior = aux;
-                            aux = aux->prox;
-                        }
-                    }
-                    else
-                    {
-                        /*Remove o estado J*/
-                        estado anterior;
-                        
-                        aux = af->estados;
-                        anterior = af->estados;
-                        /*Percorre os estados do AF ate que se encontre o estado I*/
-                        while(aux != NULL)
-                        {
-                            /*Caso encontre, o estado I é removido*/
-                            if(aux->numero == j)
-                            {
-                                anterior = aux->prox;
-                                free(aux);
-                            }
-                            
-                            int k;
-                            /*Percorre o vetor de transicoes de todos os estados 
-                             * e faz com que todas as transicoes que anteriormente 
-                             * apontavam para I apontem agora para J, pois I e J 
-                             * são equivalentes e I foi removido*/
-                            for(k=0; k<af->num_estados; k++)
-                            {
-                                if(aux->move[k]->numero == j)
-                                {
-                                    aux->move[k]->numero = i;
-                                }
-                            }
-                            anterior = aux;
-                            aux = aux->prox;
-                        }
-                    }
+                    
                 }
             }
         }
     }
-    return af;
-}
-
-Bool AFequiv(AF af1, AF af2)
-{
-    /*Ja supondo que af1 e af2 são AFD's*/
-    int i, j, cont_trans, cont_est = 0;
-    
-    AF af1_min;
-    AF af2_min;
-    
-    estado aux1;
-    estado aux2;
-    
-    /*Minimiza abos os automatos*/
-    af1_min = AFminimiza(af1);
-    af2_min = AFminimiza(af2);
-    
-    /*Renumera amos os automatos*/
-    af1_min = AFrenumera(af1_min);
-    af2_min = AFrenumera(af2_min);
-    
-    aux1 = af1_min->estados;
-    aux2 = af2_min->estados;
-    
-    if(af1_min->num_estados != af2_min->num_estados)
-    {
-        return FALSE;
-    }
-    
-    while(aux1 != NULL)
-    {
-        while(aux2 != NULL)
-        {
-            for(i=0; i<af1->num_simbolos; i++)
-            {
-                for(j=0; j<af2->num_simbolos; j++)
-                {
-                    if(aux1->move[i]->numero == aux2->move[j]->numero)
-                    {
-                        cont_trans++;
-                    }
-                }
-            }
-            if((cont_trans == af1_min->num_simbolos) && (cont_trans == af2_min->num_simbolos))
-            {
-                cont_est++;
-            }
-            
-            aux2 = aux2->prox;
-        }
-        
-        aux1 = aux1->prox;
-    }
-    if((cont_est == af1_min->num_estados) && (cont_est == af2_min->num_estados))
-    {
-        return TRUE;
-    }
-}
-
-AF AFfechamento(AF af)
-{
-    estado aux;
-    int inicial;
-    
-    aux = af->estados;
-    
-    while(aux != NULL)
-    {
-        if(aux->inicial == TRUE)
-        {
-            inicial = aux->numero;
-        }
-    }
-    
-    aux = af->estados;
-    
-    while(aux != NULL)
-    {
-        if(aux->final == TRUE)
-        {
-            int pos;
-
-            pos = retorna_index(af, '\0');
-            
-            aux->move[pos]->numero = inicial;
-
-        }
-    }
-    
 }
