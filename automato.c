@@ -43,20 +43,30 @@ AF AFdestroi(AF af)
     if(af!=NULL){
         /*controle de laco*/
         int i;
+        estado pDel;
+        estado pAux;
+        Lista del;
+        Lista aux;
         
-        /*libera a string de alfabeto*/
-        free(af->alfabeto);
-        
-        /*libera a lista de estados*/
-        for(i=0;i<af->num_estados;i++)
+        pAux = af->estados;
+        while(pAux!=NULL)
         {
-            /*destroi o estado */
-            AFdestroiEstado(af,i);
+            aux = pAux->move;
+            while(aux!=NULL)
+            {
+                for(i=0;i<af->num_simbolos;i++)
+                {
+                    del[i] = aux[i]->prox;
+                    aux = aux[i]->prox;
+                }
+            }
+            pAux = pAux->prox;
         }
         
         /*libera a estrutura primaria*/
         free(af);
     }
+    return NULL;
 }
 /*(af->num_simbolos+1)*/
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
@@ -70,7 +80,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
-        novo->move[i]->prox = NULL;
+        novo->move[i] = NULL;
     }
     
     novo->numero = e;
@@ -125,9 +135,8 @@ void AFdestroiEstado(AF af,int e)
 
 void AFcriaTransicao(AF af,int e1,char s,int e2)
 {
-    int i, pos;
+    int pos;
     estado aux;
-    estado manipulado;
     /*Variavel transicao guarda a nova transicao*/
     Lista nova_transicao;
     
@@ -160,8 +169,8 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
 
 void AFdestroiTransicao(AF af,int e1,char s,int e2)
 {
-    int i, pos;
-    estado aux;
+    int pos;
+    estado aux =NULL;
     estado manipulado;
     
     Lista atual;
@@ -215,7 +224,7 @@ Bool AFestadoInicial(AF af,int e)
         }
         aux = aux->prox;
     }
-    
+    return FALSE;
 }
 
 Bool AFestadoFinal(AF af,int e)
@@ -234,6 +243,7 @@ Bool AFestadoFinal(AF af,int e)
         }
         aux = aux->prox;
     }
+    return FALSE;
 }
 
 Bool AFchecaAFD(AF af)
@@ -326,7 +336,7 @@ int AFmoveAFD(AF af,int e,char s)
     {
         return transicao->prox->numero;
     }
-    
+    return 0;
 }
 
 Lista AFfecho(AF af,Lista e,char s)
@@ -364,14 +374,14 @@ void AFsalva(AF af,char *nomeArquivo){
       
       for(i=0;i<af->num_estados;i++)
       {
-          fprintf(arq,"%i ",pAux->numero);
+          fprintf(arq,"%i",pAux->numero);
           if(pAux->inicial==TRUE)
           {
-              fprintf(arq,"i\n");
+              fprintf(arq," i\n");
           }
           else if(pAux->final==TRUE)
           {
-              fprintf(arq,"f\n");
+              fprintf(arq," f\n");
           }
           else
           {
@@ -386,11 +396,11 @@ void AFsalva(AF af,char *nomeArquivo){
       {
           for(i=0;i<af->num_simbolos;i++)
           {
+              aux = pAux->move[i];
               while(aux!=NULL)
               {
-                aux = pAux->move[i];
                 fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
-                aux = pAux->move[i]->prox;
+                aux = aux->prox;
               }
           }
           pAux = pAux->prox;
@@ -462,12 +472,9 @@ AF AFcarrega(char* nomeArquivo) {
             for(i=0;i<QuantEstados;i++)
             {
                 fgets(auxA,20,arq);
-                //printf("%c %c\n",auxA[0],auxA[2]);
-                
+                                
                 buff = ' ';
                 sscanf(auxA,"%i %c",&auxX,&buff);
-                
-                printf("%i %c\n",auxX,buff);
                 
                 if((buff=='i')||(buff=='f'))
                 {
@@ -488,17 +495,16 @@ AF AFcarrega(char* nomeArquivo) {
             
             max = max - QuantEstados - 1;
             
-            for(i=1;i<max;i++)
+            for(i=0;i<max;i++)
             {
-                fscanf(arq,"%i %s %i",&auxX,auxA,&auxY);
-                printf("%i %s %i\n",auxX,auxA,auxY);
-                
+                fscanf(arq,"%i %s %i",&auxX,auxA,&auxY);                
                 AFcriaTransicao(automato,auxX,auxA[1],auxY);
             }
         }
+        return automato;
+        
         /*fecha o arquivo*/
         fclose(arq);
-        return automato;
     }
     /*retonar nulo caso não encontre o arquivo*/
     return NULL;
@@ -512,7 +518,7 @@ static int retorna_index(AF af,char s)
     char* ptr;
     int posi;
         
-    i = (int*) s;
+    i = s;
     
     ptr = strchr(af->alfabeto,i);
     
@@ -541,17 +547,18 @@ AF AFnegacao(AF af)
             aux->final = TRUE;
         }
     }
+    return af;
 }
 
 AF AFuniao(AF af1, AF af2)
 {
-    int pos;
     AF af3;
     estado auxf3;
     estado aux;    
 
     /*Juncao dos alfabetos do af1 e af2*/
     char* alfabeto3;
+    char* temp;
     
     /*Renumera os estados do primeiro automato a partir de 10*/
     AFrenumeraPlus(af1, 10);
@@ -559,9 +566,11 @@ AF AFuniao(AF af1, AF af2)
     /*Renumera os estados do segundo automato a partir de 20*/
     AFrenumeraPlus(af2, 20);
     
+    temp = concatenaAlfabetos(af1->alfabeto, af2->alfabeto);
+    alfabeto3 = (char*) malloc(strlen(temp)*sizeof(char));
     
     /*funcao de juncao dos alfabetos*/
-    strcpy(alfabeto3, concatenaAlfabetos(af1->alfabeto, af2->alfabeto));    
+    strcpy(alfabeto3,temp);
     
     /*cria o novo automato*/
     af3 = AFcria(alfabeto3);
@@ -583,7 +592,7 @@ AF AFuniao(AF af1, AF af2)
         if(auxf3->inicial == TRUE)
         {
             AFcriaTransicao(af3, 1, '\0', auxf3->numero);
-            auxf3->inicial == FALSE;
+            auxf3->inicial = FALSE;
         }
         if(auxf3->final == TRUE)
         {
@@ -604,7 +613,7 @@ AF AFuniao(AF af1, AF af2)
         if(auxf3->inicial == TRUE)
         {
             AFcriaTransicao(af3, 1, '\0', auxf3->numero);
-            auxf3->inicial == FALSE;
+            auxf3->inicial = FALSE;
         }
         if(auxf3->final == TRUE)
         {
@@ -635,6 +644,7 @@ AF AFrenumera(AF af)
         i++;
         aux = aux->prox;    
     }
+    return af;
 }
 
 static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
@@ -668,8 +678,7 @@ static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
 /*Renumera o automato a partir de um numero informado*/
 static AF AFrenumeraPlus(AF af, int n)
 {
-        estado aux;
-    int i = 1;
+    estado aux;
     
     aux = af->estados;
     
@@ -679,6 +688,7 @@ static AF AFrenumeraPlus(AF af, int n)
         n++;
         aux = aux->prox;    
     }
+    return NULL;
 }
 
 AF AFminimiza(AF af)
@@ -911,6 +921,7 @@ Bool AFequiv(AF af1, AF af2)
     {
         return TRUE;
     }
+    return FALSE;
 }
 
 AF AFfechamento(AF af)
@@ -942,5 +953,5 @@ AF AFfechamento(AF af)
 
         }
     }
-    
+    return NULL;
 }
