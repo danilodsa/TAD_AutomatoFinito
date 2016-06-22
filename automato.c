@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "automato.h"
-#define aspa 34
 
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
@@ -11,7 +10,7 @@ static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2);
 
 AF AFcria(char *alfabeto)
 {
-    AF aux = (AF) malloc(sizeof(struct Taf));
+    AF aux = (AF) malloc(sizeof(AF));
         
     if(aux!=NULL)
     {
@@ -70,6 +69,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
+        novo->move[i].prox = NULL;
     }
     
     novo->numero = e;
@@ -347,305 +347,6 @@ Lista AFfecho(AF af,Lista e,char s)
        
 }
 
-void AFsalva(AF af,char *nomeArquivo){
-  FILE *arq;
-  Lista aux;
-  estado pAux;
-  
-  arq = fopen(nomeArquivo,"w");
-  
-  if(arq!=NULL)
-  {
-      int i;
-      
-      pAux = af->estados;
-      fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
-      
-      for(i=0;i<af->num_estados;i++)
-      {
-          fprintf(arq,"%i ",pAux->numero);
-          if(pAux->inicial==TRUE)
-          {
-              fprintf(arq,"i\n");
-          }
-          else if(pAux->final==TRUE)
-          {
-              fprintf(arq,"f\n");
-          }
-          else
-          {
-              fprintf(arq,"\n");
-          }
-          pAux = pAux->prox;
-      }
-      
-      pAux = af->estados;
-      
-      while(pAux!=NULL)
-      {
-          for(i=0;i<af->num_simbolos;i++)
-          {
-              while(aux!=NULL)
-              {
-                aux = pAux->move[i];
-                fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
-                aux = pAux->move[i]->prox;
-              }
-          }
-          pAux = pAux->prox;
-      }
-      
-      fclose(arq);
-  }
-}
-
-AF AFcarrega(char* nomeArquivo) {
-    FILE *arq = NULL;
-    AF automato;
-    /*decisão de projeto*/
-    char alfabeto[256];
-    char temp[256];
-    char auxA[20];
-    char *x,*y;
-    char buff;
-    int QuantEstados;
-    int auxX,auxY;
-    
-    arq = fopen(nomeArquivo,"rt");
-    
-    if(arq!=NULL)
-    {        
-        int i;
-        int max = 0; 
-        
-        buff = ' ';
-        
-        while(buff != EOF)
-        {
-            buff=fgetc(arq);
-            
-            if(buff=='\n')
-            {
-                max++;
-            }
-        }
-        fclose(arq);
-        
-        arq = fopen(nomeArquivo,"rt");
-        
-        fscanf(arq,"%s %i",temp,&QuantEstados);
-        
-        /*captura a primeira ocorrencia de aspa*/
-        x = strrchr(temp,aspa);
-        /*captura a segunda ocorrencia de aspa*/
-        y = strchr(temp,aspa);
-        
-        /*calcula quantos caracteres o alfabeto possui*/
-        auxX = x-y-1;
-        
-        for(i=0;i<auxX;i++)
-        {
-            alfabeto[i] = temp[i+1];
-        }
-        
-        /*aloca a memoria necessaria para o automato*/
-        automato = AFcria(alfabeto);
-        
-        if(automato!=NULL)
-        {
-            int i;
-            
-            /*ponta pe incial*/
-            fgets(auxA,20,arq);
-            
-            for(i=0;i<QuantEstados;i++)
-            {
-                fgets(auxA,20,arq);
-                //printf("%c %c\n",auxA[0],auxA[2]);
-                
-                buff = ' ';
-                sscanf(auxA,"%i %c",&auxX,&buff);
-                
-                printf("%i %c\n",auxX,buff);
-                
-                if((buff=='i')||(buff=='f'))
-                {
-                    if(buff=='i')
-                    {
-                        AFcriaEstado(automato,auxX,TRUE,FALSE);
-                    }
-                    if(buff=='f')
-                    {
-                        AFcriaEstado(automato,auxX,FALSE,TRUE);
-                    }
-                }
-                else
-                {
-                    AFcriaEstado(automato,auxX,FALSE,FALSE);
-                }
-            }
-            
-            max = max - QuantEstados - 1;
-            
-            for(i=1;i<max;i++)
-            {
-                fscanf(arq,"%i %s %i",&auxX,auxA,&auxY);
-                printf("%i %s %i\n",auxX,auxA,auxY);
-                
-                AFcriaTransicao(automato,auxX,auxA[1],auxY);
-            }
-        }
-        /*fecha o arquivo*/
-        fclose(arq);
-        return automato;
-    }
-    /*retonar nulo caso não encontre o arquivo*/
-    return NULL;
-}
-
-
-void AFsalva(AF af,char *nomeArquivo){
-  FILE *file;
-  int j;
-  Lista aux;
-  estado pAux;
-  
-  file = fopen(nomeArquivo,"w");
-
-  fprintf(file, "\"%s\" %d\n",af->alfabeto,af->num_estados);
-  
-  pAux = af->estados;
-
-  while(pAux != NULL){
-    if((pAux->inicial == TRUE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c %c\n",pAux->numero,'i','f');      
-    
-    }else if((pAux->inicial == TRUE)&&(pAux->final == FALSE)){
-      fprintf(file, "%d %c\n",pAux->numero,'i');
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c\n",pAux->numero,'f');   
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == FALSE)){
-       fprintf(file, "%d\n",pAux->numero);   
-
-    }
-    pAux = pAux->prox;
-  }
-
-     pAux = af->estados;
-
-     while(pAux != NULL){ 
-      for (j = 0; j < af->num_simbolos; ++j){
-         fprintf(file, "%d \"%c\" ",pAux->numero,af->alfabeto[j]);
-
-         if(pAux->move[j] != NULL){
-            fprintf(file, "%d \n",pAux->move[j]->numero);            
-         }
-
-         if(pAux->move[j] != NULL){
-           aux = pAux->move[j]->prox;
-           while(aux != NULL){
-              fprintf(file, "%d \"%c\" %d \n",pAux->numero,af->alfabeto[j],aux->numero);
-              aux = aux->prox;             
-            }
-          }
-      }
-      pAux = pAux->prox;
-   }
-
-    fclose(file);
-
-}
-
-AF AFcarrega(char* nomeArquivo){
-
-   AF novoAf;
-   FILE *file;
-   char aux;
-   char alfabeto[300];
-   int i=0;   
-   int num_est=0;
-   int estado=0;
-   int est_dest=0; 
-
-   file = fopen(nomeArquivo,"rt");
-  
-   if(file == NULL){
-    exit(1); 
-   }  
-
-   aux = fgetc(file);
-   
-   while(aux != '\n'){
-     aux = fgetc(file);
-      
-     if(aux != '"'){
-       alfabeto[i] = aux;
-       i++;
-     }        
- 
-     else{
-       aux = fscanf(file,"%d",&num_est);
-       aux = fgetc(file);   
-     } 
-   }
-
-   // novoAf = AFcria(alfabeto);
-    
-   for(i=0; i< num_est;i++){
-      fscanf(file,"%d",&estado);
-      aux = fgetc(file);
-      if(aux ==' '){
-        aux = fgetc(file);
-        if(aux == 'i'){ /*No caso do arquivo vir i e depois f na leitura de estados*/
-          aux = fgetc(file);
-          if(aux == ' '){
-            aux = fgetc(file);
-            if(aux == 'f'){
-             AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/  
-            }           
-          }else AFcriaEstado(novoAf, estado,TRUE,FALSE);/*Somente estado inicial*/
-
-        }else  /*no caso do arquivo vir f e depois i em vez de i f */
-                 if(aux =='f'){
-                  aux = fgetc(file);
-                  if(aux == ' '){
-                   aux = fgetc(file);
-                   if(aux == 'i'){
-                    AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/
-                    }
-
-                  }else AFcriaEstado(novoAf, estado,FALSE,TRUE);  /*O estado é somente final*/ 
-                }    
-                    
-     }else{ AFcriaEstado(novoAf, estado,FALSE,FALSE); /*estado que não é nem incial e nem final*/
-           }         
-
-   } /*for tipo de estados*/
-
-   aux = ' '; /*garantia que irá entrar no primeiro laço*/
-   while(aux != EOF){
-
-     fscanf(file,"%d",&estado);
-     fgetc(file);/*espaço*/ 
-     fgetc(file);/*espas*/
-     aux = fgetc(file);
-     fgetc(file); fgetc(file);/*espas e espaço*/
-     fscanf(file,"%d",&est_dest);
-
-     AFcriaTransicao(novoAf,estado,aux,est_dest);
-
-     aux = fgetc(file);
-
-   }/*while estados*/
-
-    fclose(file);
-
-    return(novoAf);
-}
-
-
 static int retorna_index(AF af,char s)
 {
     int i;
@@ -908,6 +609,8 @@ AF AFminimiza(AF af)
         auxfixo = auxfixo->prox;
     }
     
+    
+ 
   /****************************************************************************/
   /**********************Minimizacao do automato*******************************/ 
   /****************************************************************************/     
@@ -991,4 +694,94 @@ AF AFminimiza(AF af)
             }
         }
     }
+    return af;
+}
+
+Bool AFequiv(AF af1, AF af2)
+{
+    /*Ja supondo que af1 e af2 são AFD's*/
+    int i, j, cont_trans, cont_est = 0;
+    
+    AF af1_min;
+    AF af2_min;
+    
+    estado aux1;
+    estado aux2;
+    
+    /*Minimiza abos os automatos*/
+    af1_min = AFminimiza(af1);
+    af2_min = AFminimiza(af2);
+    
+    /*Renumera amos os automatos*/
+    af1_min = AFrenumera(af1_min);
+    af2_min = AFrenumera(af2_min);
+    
+    aux1 = af1_min->estados;
+    aux2 = af2_min->estados;
+    
+    if(af1_min->num_estados != af2_min->num_estados)
+    {
+        return FALSE;
+    }
+    
+    while(aux1 != NULL)
+    {
+        while(aux2 != NULL)
+        {
+            for(i=0; i<af1->num_simbolos; i++)
+            {
+                for(j=0; j<af2->num_simbolos; j++)
+                {
+                    if(aux1->move[i]->numero == aux2->move[j]->numero)
+                    {
+                        cont_trans++;
+                    }
+                }
+            }
+            if((cont_trans == af1_min->num_simbolos) && (cont_trans == af2_min->num_simbolos))
+            {
+                cont_est++;
+            }
+            
+            aux2 = aux2->prox;
+        }
+        
+        aux1 = aux1->prox;
+    }
+    if((cont_est == af1_min->num_estados) && (cont_est == af2_min->num_estados))
+    {
+        return TRUE;
+    }
+}
+
+AF AFfechamento(AF af)
+{
+    estado aux;
+    int inicial;
+    
+    aux = af->estados;
+    
+    while(aux != NULL)
+    {
+        if(aux->inicial == TRUE)
+        {
+            inicial = aux->numero;
+        }
+    }
+    
+    aux = af->estados;
+    
+    while(aux != NULL)
+    {
+        if(aux->final == TRUE)
+        {
+            int pos;
+
+            pos = retorna_index(af, '\0');
+            
+            aux->move[pos]->numero = inicial;
+
+        }
+    }
+    
 }
