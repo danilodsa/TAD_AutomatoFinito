@@ -16,19 +16,22 @@
  */
 int main(int argc, char** argv) {
 
-    char alfabeto[] = "ab";
-    
+    char alfabetoA[] = "abcdefg";
+    char alfabetoB[] = "acdf";
+        
     AF automato;
     estado aux;
     
-    automato = AFcria(alfabeto);
+    //automato = AFcria(alfabetoA);
     
+    /*
     AFcriaEstado(automato,0,TRUE,FALSE);
     AFcriaEstado(automato,1,FALSE,FALSE);
     AFcriaEstado(automato,2,FALSE,FALSE);
     AFcriaEstado(automato,3,FALSE,FALSE);
     AFcriaEstado(automato,4,FALSE,TRUE);
-    
+    */
+    /*
     AFcriaTransicao(automato,0,'a',1);
     AFcriaTransicao(automato,0,'b',2);
     AFcriaTransicao(automato,1,'a',1);
@@ -38,8 +41,8 @@ int main(int argc, char** argv) {
     AFcriaTransicao(automato,3,'a',1);
     AFcriaTransicao(automato,3,'b',4);
     AFcriaTransicao(automato,4,'a',1);
-    AFcriaTransicao(automato,4,'b',2);
-        
+    AFcriaTransicao(automato,4,'b',2);*/
+    
     /*
     AFcriaTransicao(automato,1,'a',2);
     AFcriaTransicao(automato,1,'b',3);
@@ -50,8 +53,11 @@ int main(int argc, char** argv) {
     AFcriaTransicao(automato,4,'a',2);
     AFcriaTransicao(automato,4,'b',5);
     AFcriaTransicao(automato,5,'a',2);
-    AFcriaTransicao(automato,5,'b',3);
-    */    
+    AFcriaTransicao(automato,5,'b',3);*/
+    
+    automato = AFcarrega("automato.txt");
+    AFsalva(automato,"teste");
+    
     
     return (EXIT_SUCCESS);
 }
