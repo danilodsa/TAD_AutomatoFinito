@@ -733,7 +733,7 @@ AF AFminimiza(AF af)
                         {
                             matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;
                         }
-                        /*Caso nao seja a primeira transicao a ser verifica, e a 
+                        /*Caso nao seja a primeira transicao a ser verificada, e a 
                          * transicao que esta sendo verificada seja esquivalente, 
                          * entao o numero que está guardado na matris de equivalencias é decrementado. 
                          * Se os fim do processo esse numero for ZERO, significa que todos as transicoes 
@@ -777,9 +777,74 @@ AF AFminimiza(AF af)
             if(i != j)
             {
                 /*Encontrando estados EQ*/
+                /*O estado com o maior indice será removido (Decisao de Projeto)*/
                 if(matriz[i][j] == 0)
                 {
-                    
+                    if(i > j)
+                    {
+                        estado anterior;
+                        
+                        aux = af->estados;
+                        anterior = af->estados;
+                        /*Percorre os estados do AF ate que se encontre o estado I*/
+                        while(aux != NULL)
+                        {
+                            /*Caso encontre, o estado I é removido*/
+                            if(aux->numero == i)
+                            {
+                                anterior = aux->prox;
+                                free(aux);
+                            }
+                            
+                            int k;
+                            /*Percorre o vetor de transicoes de todos os estados 
+                             * e faz com que todas as transicoes que anteriormente 
+                             * apontavam para I apontem agora para J, pois I e J 
+                             * são equivalentes e I foi removido*/
+                            for(k=0; k<af->num_estados; k++)
+                            {
+                                if(aux->move[k]->numero == i)
+                                {
+                                    aux->move[k]->numero = j;
+                                }
+                            }
+                            anterior = aux;
+                            aux = aux->prox;
+                        }
+                    }
+                    else
+                    {
+                        /*Remove o estado J*/
+                        estado anterior;
+                        
+                        aux = af->estados;
+                        anterior = af->estados;
+                        /*Percorre os estados do AF ate que se encontre o estado I*/
+                        while(aux != NULL)
+                        {
+                            /*Caso encontre, o estado I é removido*/
+                            if(aux->numero == j)
+                            {
+                                anterior = aux->prox;
+                                free(aux);
+                            }
+                            
+                            int k;
+                            /*Percorre o vetor de transicoes de todos os estados 
+                             * e faz com que todas as transicoes que anteriormente 
+                             * apontavam para I apontem agora para J, pois I e J 
+                             * são equivalentes e I foi removido*/
+                            for(k=0; k<af->num_estados; k++)
+                            {
+                                if(aux->move[k]->numero == j)
+                                {
+                                    aux->move[k]->numero = i;
+                                }
+                            }
+                            anterior = aux;
+                            aux = aux->prox;
+                        }
+                    }
                 }
             }
         }
