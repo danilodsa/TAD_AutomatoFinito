@@ -70,6 +70,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
+        novo->move[i].prox = NULL;
     }
     
     novo->numero = e;
@@ -766,6 +767,8 @@ AF AFminimiza(AF af)
         auxfixo = auxfixo->prox;
     }
     
+    
+ 
   /****************************************************************************/
   /**********************Minimizacao do automato*******************************/ 
   /****************************************************************************/     
