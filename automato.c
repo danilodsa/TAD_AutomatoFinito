@@ -69,6 +69,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
+        novo->move[i].prox = NULL;
     }
     
     novo->numero = e;
@@ -346,148 +347,6 @@ Lista AFfecho(AF af,Lista e,char s)
        
 }
 
-void AFsalva(AF af,char *nomeArquivo){
-  FILE *file;
-  int j;
-  Lista aux;
-  estado pAux;
-  
-  file = fopen(nomeArquivo,"w");
-
-  fprintf(file, "\"%s\" %d\n",af->alfabeto,af->num_estados);
-  
-  pAux = af->estados;
-
-  while(pAux != NULL){
-    if((pAux->inicial == TRUE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c %c\n",pAux->numero,'i','f');      
-    
-    }else if((pAux->inicial == TRUE)&&(pAux->final == FALSE)){
-      fprintf(file, "%d %c\n",pAux->numero,'i');
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == TRUE)){
-       fprintf(file, "%d %c\n",pAux->numero,'f');   
-    
-    }else if ((pAux->inicial == FALSE)&&(pAux->final == FALSE)){
-       fprintf(file, "%d\n",pAux->numero);   
-
-    }
-    pAux = pAux->prox;
-  }
-
-     pAux = af->estados;
-
-     while(pAux != NULL){ 
-      for (j = 0; j < af->num_simbolos; ++j){
-         fprintf(file, "%d \"%c\" ",pAux->numero,af->alfabeto[j]);
-
-         if(pAux->move[j] != NULL){
-            fprintf(file, "%d \n",pAux->move[j]->numero);            
-         }
-
-         if(pAux->move[j] != NULL){
-           aux = pAux->move[j]->prox;
-           while(aux != NULL){
-              fprintf(file, "%d \"%c\" %d \n",pAux->numero,af->alfabeto[j],aux->numero);
-              aux = aux->prox;             
-            }
-          }
-      }
-      pAux = pAux->prox;
-   }
-
-    fclose(file);
-
-}
-
-AF AFcarrega(char* nomeArquivo){
-
-   AF novoAf;
-   FILE *file;
-   char aux;
-   char alfabeto[300];
-   int i=0;   
-   int num_est=0;
-   int estado=0;
-   int est_dest=0; 
-
-   file = fopen(nomeArquivo,"rt");
-  
-   if(file == NULL){
-    exit(1); 
-   }  
-
-   aux = fgetc(file);
-   
-   while(aux != '\n'){
-     aux = fgetc(file);
-      
-     if(aux != '"'){
-       alfabeto[i] = aux;
-       i++;
-     }        
- 
-     else{
-       aux = fscanf(file,"%d",&num_est);
-       aux = fgetc(file);   
-     } 
-   }
-
-   // novoAf = AFcria(alfabeto);
-    
-   for(i=0; i< num_est;i++){
-      fscanf(file,"%d",&estado);
-      aux = fgetc(file);
-      if(aux ==' '){
-        aux = fgetc(file);
-        if(aux == 'i'){ /*No caso do arquivo vir i e depois f na leitura de estados*/
-          aux = fgetc(file);
-          if(aux == ' '){
-            aux = fgetc(file);
-            if(aux == 'f'){
-             AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/  
-            }           
-          }else AFcriaEstado(novoAf, estado,TRUE,FALSE);/*Somente estado inicial*/
-
-        }else  /*no caso do arquivo vir f e depois i em vez de i f */
-                 if(aux =='f'){
-                  aux = fgetc(file);
-                  if(aux == ' '){
-                   aux = fgetc(file);
-                   if(aux == 'i'){
-                    AFcriaEstado(novoAf, estado,TRUE,TRUE); /*O estado é inicial e final ao mesmo tempo*/
-                    }
-
-                  }else AFcriaEstado(novoAf, estado,FALSE,TRUE);  /*O estado é somente final*/ 
-                }    
-                    
-     }else{ AFcriaEstado(novoAf, estado,FALSE,FALSE); /*estado que não é nem incial e nem final*/
-           }         
-
-   } /*for tipo de estados*/
-
-   aux = ' '; /*garantia que irá entrar no primeiro laço*/
-   while(aux != EOF){
-
-     fscanf(file,"%d",&estado);
-     fgetc(file);/*espaço*/ 
-     fgetc(file);/*espas*/
-     aux = fgetc(file);
-     fgetc(file); fgetc(file);/*espas e espaço*/
-     fscanf(file,"%d",&est_dest);
-
-     AFcriaTransicao(novoAf,estado,aux,est_dest);
-
-     aux = fgetc(file);
-
-   }/*while estados*/
-
-    fclose(file);
-
-    return(novoAf);
-}
-
-
 static int retorna_index(AF af,char s)
 {
     int i;
@@ -750,6 +609,8 @@ AF AFminimiza(AF af)
         auxfixo = auxfixo->prox;
     }
     
+    
+ 
   /****************************************************************************/
   /**********************Minimizacao do automato*******************************/ 
   /****************************************************************************/     
