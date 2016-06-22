@@ -3,6 +3,7 @@
 #include <string.h>
 #include "automato.h"
 
+#define aspa 34
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
 static AF AFrenumeraPlus(AF af, int n);
@@ -69,7 +70,7 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
     for(i=0; i<(af->num_simbolos+1); i++)
     {
         novo->move[i] = (Lista) malloc(sizeof (struct Tnodolista));
-        novo->move[i].prox = NULL;
+        novo->move[i]->prox = NULL;
     }
     
     novo->numero = e;
@@ -346,6 +347,164 @@ Lista AFfecho(AF af,Lista e,char s)
     return retorno;
        
 }
+
+void AFsalva(AF af,char *nomeArquivo){
+  FILE *arq;
+  Lista aux;
+  estado pAux;
+  
+  arq = fopen(nomeArquivo,"w");
+  
+  if(arq!=NULL)
+  {
+      int i;
+      
+      pAux = af->estados;
+      fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
+      
+      for(i=0;i<af->num_estados;i++)
+      {
+          fprintf(arq,"%i ",pAux->numero);
+          if(pAux->inicial==TRUE)
+          {
+              fprintf(arq,"i\n");
+          }
+          else if(pAux->final==TRUE)
+          {
+              fprintf(arq,"f\n");
+          }
+          else
+          {
+              fprintf(arq,"\n");
+          }
+          pAux = pAux->prox;
+      }
+      
+      pAux = af->estados;
+      
+      while(pAux!=NULL)
+      {
+          for(i=0;i<af->num_simbolos;i++)
+          {
+              while(aux!=NULL)
+              {
+                aux = pAux->move[i];
+                fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
+                aux = pAux->move[i]->prox;
+              }
+          }
+          pAux = pAux->prox;
+      }
+      
+      fclose(arq);
+  }
+}
+
+AF AFcarrega(char* nomeArquivo) {
+    FILE *arq = NULL;
+    AF automato;
+    /*decisão de projeto*/
+    char alfabeto[256];
+    char temp[256];
+    char auxA[20];
+    char *x,*y;
+    char buff;
+    int QuantEstados;
+    int auxX,auxY;
+    
+    arq = fopen(nomeArquivo,"rt");
+    
+    if(arq!=NULL)
+    {        
+        int i;
+        int max = 0; 
+        
+        buff = ' ';
+        
+        while(buff != EOF)
+        {
+            buff=fgetc(arq);
+            
+            if(buff=='\n')
+            {
+                max++;
+            }
+        }
+        fclose(arq);
+        
+        arq = fopen(nomeArquivo,"rt");
+        
+        fscanf(arq,"%s %i",temp,&QuantEstados);
+        
+        /*captura a primeira ocorrencia de aspa*/
+        x = strrchr(temp,aspa);
+        /*captura a segunda ocorrencia de aspa*/
+        y = strchr(temp,aspa);
+        
+        /*calcula quantos caracteres o alfabeto possui*/
+        auxX = x-y-1;
+        
+        for(i=0;i<auxX;i++)
+        {
+            alfabeto[i] = temp[i+1];
+        }
+        
+        /*aloca a memoria necessaria para o automato*/
+        automato = AFcria(alfabeto);
+        
+        if(automato!=NULL)
+        {
+            int i;
+            
+            /*ponta pe incial*/
+            fgets(auxA,20,arq);
+            
+            for(i=0;i<QuantEstados;i++)
+            {
+                fgets(auxA,20,arq);
+                //printf("%c %c\n",auxA[0],auxA[2]);
+                
+                buff = ' ';
+                sscanf(auxA,"%i %c",&auxX,&buff);
+                
+                printf("%i %c\n",auxX,buff);
+                
+                if((buff=='i')||(buff=='f'))
+                {
+                    if(buff=='i')
+                    {
+                        AFcriaEstado(automato,auxX,TRUE,FALSE);
+                    }
+                    if(buff=='f')
+                    {
+                        AFcriaEstado(automato,auxX,FALSE,TRUE);
+                    }
+                }
+                else
+                {
+                    AFcriaEstado(automato,auxX,FALSE,FALSE);
+                }
+            }
+            
+            max = max - QuantEstados - 1;
+            
+            for(i=1;i<max;i++)
+            {
+                fscanf(arq,"%i %s %i",&auxX,auxA,&auxY);
+                printf("%i %s %i\n",auxX,auxA,auxY);
+                
+                AFcriaTransicao(automato,auxX,auxA[1],auxY);
+            }
+        }
+        /*fecha o arquivo*/
+        fclose(arq);
+        return automato;
+    }
+    /*retonar nulo caso não encontre o arquivo*/
+    return NULL;
+}
+
+
 
 static int retorna_index(AF af,char s)
 {
