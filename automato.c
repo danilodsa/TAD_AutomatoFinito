@@ -38,35 +38,33 @@ AF AFcria(char *alfabeto)
     return NULL;
 }
 
-AF AFdestroi(AF af)
-{
-    if(af!=NULL){
-        /*controle de laco*/
-        int i;
-        estado pDel;
-        estado pAux;
-        Lista del;
-        Lista aux;
-        
-        pAux = af->estados;
-        while(pAux!=NULL)
+AF AFdestroi(AF af) {
+    Lista del;
+    Lista aux;
+    estado pDel;
+    estado pAux;
+    int i;
+
+    pAux = af->estados;
+
+    while (pAux != NULL) 
+    {
+        for (i = 0; i < af->num_simbolos; i++)
         {
-            aux = pAux->move;
-            while(aux!=NULL)
+            aux = pAux->move[i];
+            while (aux != NULL) 
             {
-                for(i=0;i<af->num_simbolos;i++)
-                {
-                    del[i] = aux[i]->prox;
-                    aux = aux[i]->prox;
-                }
+                del = aux;
+                aux = aux->prox;
+                free(del);
             }
-            pAux = pAux->prox;
         }
-        
-        /*libera a estrutura primaria*/
-        free(af);
+        pDel = pAux;
+        pAux = pAux->prox;
+        free(pDel);
     }
-    return NULL;
+    af = NULL;
+    free(af);
 }
 /*(af->num_simbolos+1)*/
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
@@ -121,7 +119,6 @@ void AFdestroiEstado(AF af,int e)
             {
                 anterior->prox = aux->prox;
                 free(aux);
-                aux = NULL;
             }
             else
             {
@@ -204,7 +201,6 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
  
     anterior->prox = atual->prox;
     free(atual);
-    
 }
 
 Bool AFestadoInicial(AF af,int e)
@@ -458,6 +454,8 @@ AF AFcarrega(char* nomeArquivo) {
         {
             alfabeto[i] = temp[i+1];
         }
+        
+        alfabeto[auxX] = '\0';
         
         /*aloca a memoria necessaria para o automato*/
         automato = AFcria(alfabeto);
