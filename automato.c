@@ -3,7 +3,6 @@
 #include <string.h>
 #include "automato.h"
 
-#define aspa 34
 /*Funcao que retorna a posicao do simbolo dentro do vetor de simbolos*/
 static int retorna_index(AF af, char s);
 static AF AFrenumeraPlus(AF af, int n);
@@ -413,10 +412,10 @@ AF AFcarrega(char* nomeArquivo) {
     char alfabeto[256];
     char temp[256];
     char auxA[20];
-    char *x,*y;
+    char x,y;
     char buff;
     int QuantEstados;
-    int auxX,auxY;
+    int auxX,auxY,auxZ,auxW;
     
     arq = fopen(nomeArquivo,"rt");
     
@@ -442,19 +441,13 @@ AF AFcarrega(char* nomeArquivo) {
         
         fscanf(arq,"%s %i",temp,&QuantEstados);
         
-        /*captura a primeira ocorrencia de aspa*/
-        x = strrchr(temp,aspa);
-        /*captura a segunda ocorrencia de aspa*/
-        y = strchr(temp,aspa);
-        
-        /*calcula quantos caracteres o alfabeto possui*/
-        auxX = x-y-1;
+        auxX = strlen(temp);
+        auxX = auxX-2;
         
         for(i=0;i<auxX;i++)
         {
             alfabeto[i] = temp[i+1];
         }
-        
         alfabeto[auxX] = '\0';
         
         /*aloca a memoria necessaria para o automato*/
@@ -470,24 +463,36 @@ AF AFcarrega(char* nomeArquivo) {
             for(i=0;i<QuantEstados;i++)
             {
                 fgets(auxA,20,arq);
-                                
-                buff = ' ';
-                sscanf(auxA,"%i %c",&auxX,&buff);
                 
-                if((buff=='i')||(buff=='f'))
+                x = '\0';
+                y = '\0';
+                sscanf(auxA,"%i %c %c",&auxX,&x,&y);
+
+                switch(x)
                 {
-                    if(buff=='i')
-                    {
-                        AFcriaEstado(automato,auxX,TRUE,FALSE);
-                    }
-                    if(buff=='f')
-                    {
-                        AFcriaEstado(automato,auxX,FALSE,TRUE);
-                    }
-                }
-                else
-                {
-                    AFcriaEstado(automato,auxX,FALSE,FALSE);
+                    case 'i':
+                        if(y=='f')
+                        {
+                            AFcriaEstado(automato,auxX,TRUE,TRUE);
+                        }
+                        else
+                        {
+                            AFcriaEstado(automato,auxX,TRUE,FALSE);
+                        }
+                        break;
+                    case 'f':
+                        if(y=='i')
+                        {
+                            AFcriaEstado(automato,auxX,TRUE,TRUE);
+                        }
+                        else
+                        {
+                            AFcriaEstado(automato,auxX,FALSE,TRUE);
+                        }
+                        break;
+                    default:
+                        AFcriaEstado(automato,auxX,FALSE,FALSE);
+                        ;
                 }
             }
             
