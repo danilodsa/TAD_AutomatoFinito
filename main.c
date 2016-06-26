@@ -69,12 +69,42 @@ int main(int argc, char** argv) {
                 }
             break;
             case 'X':
-                printf("Checa AFD:\n");
-                printf("Checa AFv:\n");
-                printf("Checa Equivalência:\n");
-                printf("Checa estado inicial\n");
-                printf("Checa estado final:\n");
-                printf("Minimiza Automato: \n");
+                fgets(buff,10,stdin);
+                printf("A - Checa AFD:\n");
+                printf("B - Checa AFv:\n");
+                printf("C - Checa Equivalência:\n");
+                printf("D - Checa estado inicial\n");
+                printf("E - Checa estado final:\n");
+                printf("F - Minimiza Automato: \n");
+                scanf("%c",&comando);
+                switch(comando)
+                {
+                    case 'A':
+                        fgets(buff,10,stdin);
+                        printf("A - automato A\n");
+                        printf("B - automato A\n");
+                        scanf("%c",&comando);
+                        switch(comando)
+                        {
+                            case 'A':
+                                AFchecaAFD(automatoA);
+                                break;
+                            case 'B':
+                                AFchecaAFD(automatoB);
+                                break;
+                        }
+                        break;
+                    case 'B':
+                        break;
+                    case 'C':
+                        break;
+                    case 'D':
+                        break;
+                    case 'E':
+                        break;
+                    case 'F':
+                        break;
+                }
             break;
             default:
                 ;
