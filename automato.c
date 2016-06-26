@@ -64,6 +64,7 @@ AF AFdestroi(AF af) {
     }
     af = NULL;
     free(af);
+    return af;
 }
 /*(af->num_simbolos+1)*/
 void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
@@ -415,7 +416,7 @@ AF AFcarrega(char* nomeArquivo) {
     char x,y;
     char buff;
     int QuantEstados;
-    int auxX,auxY,auxZ,auxW;
+    int auxX,auxY;
     
     arq = fopen(nomeArquivo,"rt");
     
