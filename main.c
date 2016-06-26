@@ -17,8 +17,10 @@
 int main(int argc, char** argv) {
         
     AF automatoA,automatoB;
-    char comando;
+    char comando,comando2;
     char Aux1[20],buff[10];
+    estado aux;
+    int auxX;
     
     do
     {
@@ -76,6 +78,7 @@ int main(int argc, char** argv) {
                 printf("D - Checa estado inicial\n");
                 printf("E - Checa estado final:\n");
                 printf("F - Minimiza Automato: \n");
+                printf("G - Destroi Estado: \n");
                 scanf("%c",&comando);
                 switch(comando)
                 {
@@ -87,12 +90,19 @@ int main(int argc, char** argv) {
                         switch(comando)
                         {
                             case 'A':
-                                AFchecaAFD(automatoA);
+                                if(AFchecaAFD(automatoA))
+                                    printf("TRUE\n");
+                                else
+                                    printf("FALSE\n");
                                 break;
                             case 'B':
-                                AFchecaAFD(automatoB);
+                                if(AFchecaAFD(automatoB))
+                                    printf("TRUE\n");
+                                else
+                                    printf("FALSE\n");
                                 break;
                         }
+                        fgets(buff,10,stdin);
                         break;
                     case 'B':
                         break;
@@ -103,6 +113,36 @@ int main(int argc, char** argv) {
                     case 'E':
                         break;
                     case 'F':
+                        break;
+                    case 'G':
+                        fgets(buff,10,stdin);
+                        printf("A - automato A\n");
+                        printf("B - automato A\n");
+                        scanf("%c",&comando);
+                        switch(comando)
+                        {
+                            case 'A':
+                                printf("Deletar estado (indique o numero):\n");
+                                for(aux=automatoA->estados;aux!=NULL;aux=aux->prox)
+                                {
+                                    printf("%i\n",aux->numero);
+                                }
+                                printf("estado: ");
+                                scanf("%i",&auxX);
+                                AFdestroiEstado(automatoA,auxX);
+                                break;
+                            case 'B':
+                                printf("Deletar estado (indique o numero):\n");
+                                for(aux=automatoB->estados;aux!=NULL;aux=aux->prox)
+                                {
+                                    printf("%i\n",aux->numero);
+                                }
+                                printf("estado: ");
+                                scanf("%i",&auxX);
+                                AFdestroiEstado(automatoA,auxX);
+                                break;
+                        }
+                        fgets(buff,10,stdin);
                         break;
                 }
             break;
