@@ -103,12 +103,16 @@ void AFdestroiEstado(AF af,int e)
     
     aux = af->estados;
     
+    /*Destruicao do ESTADO*/
+    /*Caso o estado a ser removido seja o primeiro*/
     if(aux->numero == e)
     {
         af->estados = aux->prox;
         free(aux);
-        aux = NULL;
+        /*Decrementa o total de estados do automato*/
+        af->num_estados--;
     }
+    /*Caso o estado a ser removido nao esteja no inicio*/
     else
     {
         estado anterior;
@@ -126,8 +130,47 @@ void AFdestroiEstado(AF af,int e)
                 aux = aux->prox;
             }
         }
+        /*Decrementa o total de estados do automato*/
+        af->num_estados--;
     }
-    af->num_estados--;
+    
+    
+    
+    /*Destruicao das TRANSICOES*/
+    if(aux == NULL)
+    {
+        aux = af->estados;
+        
+        while(aux != NULL)
+        {
+            Lista transicao;
+            Lista transicao_anterior;
+            int i;
+            
+            for(i=0; i<af->num_simbolos; i++)
+            {
+                transicao = aux->move[i];
+                transicao_anterior = aux->move[i];
+                
+                while(transicao != NULL)
+                {
+                    if(transicao->numero == e)
+                    {
+                        transicao_anterior->prox = transicao->prox;
+                        free(transicao);
+                    }
+                    else
+                    {
+                        transicao_anterior = transicao;
+                        transicao = transicao->prox;
+                    }
+                }
+                
+            }
+            
+        }
+    }
+
 }
 
 void AFcriaTransicao(AF af,int e1,char s,int e2)
@@ -322,7 +365,7 @@ int AFmoveAFD(AF af,int e,char s)
     Lista transicao;
     
     aux = af->estados;
-    while(aux->prox != NULL)
+    while(aux != NULL)
     {
         if(aux->numero == e)
         {
@@ -338,7 +381,7 @@ int AFmoveAFD(AF af,int e,char s)
     pos = retorna_index(af, s);
     
     transicao = manipulado->move[pos];
-    if(transicao->prox != NULL)
+    if(transicao != NULL)
     {
         return transicao->prox->numero;
     }
