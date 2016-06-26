@@ -104,38 +104,25 @@ void AFdestroiEstado(AF af,int e)
     aux = af->estados;
     
     /*Destruicao do ESTADO*/
-    /*Caso o estado a ser removido seja o primeiro*/
-    if(aux->numero == e)
+    estado anterior;
+    anterior = aux;
+    while(aux!=NULL)
     {
-        af->estados = aux->prox;
-        free(aux);
-        /*Decrementa o total de estados do automato*/
-        af->num_estados--;
-    }
-    /*Caso o estado a ser removido nao esteja no inicio*/
-    else
-    {
-        estado anterior;
-        anterior = aux;
-        while(aux!=NULL)
+        if(aux->numero == e)
         {
-            if(aux->numero == e)
-            {
-                anterior->prox = aux->prox;
-                free(aux);
-            }
-            else
-            {
-                anterior = aux;
-                aux = aux->prox;
-            }
+            anterior->prox = aux->prox;
+            free(aux);
         }
-        /*Decrementa o total de estados do automato*/
-        af->num_estados--;
+        else
+        {
+            anterior = aux;
+            aux = aux->prox;
+        }
     }
+    /*Decrementa o total de estados do automato*/
+    af->num_estados--;
     
-    
-    
+
     /*Destruicao das TRANSICOES*/
     if(aux == NULL)
     {
@@ -167,7 +154,7 @@ void AFdestroiEstado(AF af,int e)
                 }
                 
             }
-            
+            aux = aux->prox;
         }
     }
 
