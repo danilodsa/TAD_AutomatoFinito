@@ -166,18 +166,18 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
 
 void AFdestroiTransicao(AF af,int e1,char s,int e2)
 {
-    int pos;
-    estado aux =NULL;
-    estado manipulado;
+    int pos,first = 1;
+    estado aux;
+    estado manipulado = NULL;
     
     Lista atual;
     Lista anterior;
     
-    pos = retorna_index(af, s);
+    pos = retorna_index(af,s);
     
-    aux->prox = af->estados;
+    aux = af->estados;
     /*Encontra o estado que sera manipulado*/
-    while(aux->prox != NULL)
+    while(aux != NULL && manipulado == NULL)
     {
         if(aux->numero == e1)
         {
@@ -192,14 +192,23 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     atual = manipulado->move[pos];
     
-    while(atual->numero != e2)
+    while(atual->numero!=e2)
     {
+        first = 0;
         anterior = atual;
         atual = atual->prox;
     }
     /*Ao fim do while, já se obtem a posicao onde está a transicao*/
  
-    anterior->prox = atual->prox;
+    if(first==1)
+    {
+        manipulado->move[pos] = atual->prox;
+    }
+    else
+    {
+        anterior->prox = atual->prox;
+    }
+    atual = NULL;
     free(atual);
 }
 
