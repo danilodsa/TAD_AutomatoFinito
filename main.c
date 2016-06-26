@@ -21,14 +21,6 @@ int main(int argc, char** argv) {
     estado aux;
     Lista pAux;
     int auxX,i,a,b;
- 
-    /*
-    automatoA = AFcarrega("af3.txt");
-    AFdestroiTransicao(automatoA,10,'a',5);
-    AFdestroi(automatoA);
-    
-    exit(1);
-    */
     
     do
     {
