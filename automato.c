@@ -260,10 +260,11 @@ Bool AFchecaAFD(AF af)
             cont = 0;
             transicao = aux->move[i];
             /*Laco que percorre as transicoes*/
-            while(transicao->prox != NULL)
+            while(transicao != NULL)
             {
                /*Contador que incrementa a cada transicao de um mesmo simbolo*/
-               cont++; 
+               cont++;
+               transicao = transicao->prox;
             }
             /*Caso se tenha apenas uma transicao para cada simbolo em cada estado, é um afd*/
             /*Caso se tenha mais de uma transicao para o mesmo simbolo, não é afd*/
