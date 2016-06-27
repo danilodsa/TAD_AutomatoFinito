@@ -237,16 +237,20 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     while(atual->numero!=e2)
     {
+        /*First = 0 indica que a Pilha de ponteiros vai n vai apontar para
+         um novo elemento*/
         first = 0;
         anterior = atual;
         atual = atual->prox;
     }
     /*Ao fim do while, já se obtem a posicao onde está a transicao*/
  
+    /*caso a pilha tenha de apontar para um novo elemento o first vale 1*/
     if(first==1)
     {
         manipulado->move[pos] = atual->prox;
     }
+    /*caso contrario*/
     else
     {
         anterior->prox = atual->prox;
@@ -418,31 +422,36 @@ void AFsalva(AF af,char *nomeArquivo){
   {
       int i;
       
+      /*imprimi o cabecalho do arquivo
+       "alfabelo" numero de estados*/
       pAux = af->estados;
       fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
       
+      /*perocorre todos os estados disponiveis e imprimi suas informacoes*/
       for(i=0;i<af->num_estados;i++)
       {
           fprintf(arq,"%i",pAux->numero);
+          /*caso o estado for inicial imprime i*/
           if(pAux->inicial==TRUE)
           {
-              fprintf(arq," i\n");
+              fprintf(arq," i");
           }
-          else if(pAux->final==TRUE)
+          /*caso o estado for final imprime f*/
+          if(pAux->final==TRUE)
           {
-              fprintf(arq," f\n");
+              fprintf(arq," f");
           }
-          else
-          {
-              fprintf(arq,"\n");
-          }
+          /*quebra de linha apos o impressao das info do estado*/
+          fprintf(arq,"\n");
           pAux = pAux->prox;
       }
       
       pAux = af->estados;
       
+      /*percorre a pilha de transicoes de todos os estados*/
       while(pAux!=NULL)
       {
+          /*imprime a pilha de transicao por simbolo do alfabeto*/
           for(i=0;i<af->num_simbolos;i++)
           {
               aux = pAux->move[i];
