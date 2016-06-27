@@ -114,6 +114,19 @@ int main(int argc, char** argv) {
                     case 'E':
                         break;
                     case 'F':
+                        fgets(buff,10,stdin);
+                        printf("A - automato A\n");
+                        printf("B - automato A\n");
+                        scanf("%c",&comando);
+                        switch(comando)
+                        {
+                            case 'A':
+                                automatoA = AFminimiza(automatoA);
+                                break;
+                            case 'B':
+                                automatoB = AFminimiza(automatoB);
+                                break;
+                        }
                         break;
                     case 'G':
                         fgets(buff,10,stdin);
