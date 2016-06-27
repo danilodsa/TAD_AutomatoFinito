@@ -100,58 +100,87 @@ void AFcriaEstado(AF af,int e,Bool inicial,Bool final)
 void AFdestroiEstado(AF af,int e)
 {
     estado aux;
+    estado anterior;
     
     aux = af->estados;
     
     /*Destruicao do ESTADO*/
-    estado anterior;
-    anterior = aux;
-    while(aux!=NULL)
+    
+    /*Caso seja o primeiro da lista*/
+    if(aux != NULL)
     {
         if(aux->numero == e)
         {
-            anterior->prox = aux->prox;
+            af->estados = aux->prox;
             free(aux);
         }
         else
         {
-            anterior = aux;
-            aux = aux->prox;
-        }
+            anterior = af->estados;
+            aux = anterior->prox;
+            while(aux != NULL)
+            {
+                if(aux->numero == e)
+                {
+                    anterior->prox = aux->prox;
+                    free(aux);
+                }
+                else
+                {
+                    anterior = aux;
+                    aux = aux->prox;
+                }
+            }
+        }        
     }
+
     /*Decrementa o total de estados do automato*/
     af->num_estados--;
     
 
     /*Destruicao das TRANSICOES*/
-    if(aux == NULL)
+    if(aux == NULL) /*Significa que o estado foi excluido com sucesso*/
     {
+        /*aux recee o inicio da lista de estados*/
         aux = af->estados;
-        
+        /*Percorre os estados*/
         while(aux != NULL)
         {
             Lista transicao;
             Lista transicao_anterior;
             int i;
-            
+            /*Percorre as transicoes*/
             for(i=0; i<af->num_simbolos; i++)
-            {
+            {                
                 transicao = aux->move[i];
-                transicao_anterior = aux->move[i];
                 
-                while(transicao != NULL)
+                if(transicao != NULL)
                 {
+                    /*Caso seja a primeira transicao*/
                     if(transicao->numero == e)
                     {
-                        transicao_anterior->prox = transicao->prox;
+                        aux->move[i] = transicao->prox;
                         free(transicao);
                     }
                     else
                     {
-                        transicao_anterior = transicao;
-                        transicao = transicao->prox;
-                    }
-                }
+                        transicao_anterior = aux->move[i];
+                        transicao = transicao_anterior->prox;
+                        while(transicao != NULL)
+                        {
+                            if(transicao->numero == e)
+                            {
+                                transicao_anterior->prox = transicao->prox;
+                                free(transicao);
+                            }
+                            else
+                            {
+                                transicao_anterior = transicao;
+                                transicao = transicao->prox;
+                            }
+                        }
+                    }                    
+                }                
                 
             }
             aux = aux->prox;
@@ -197,7 +226,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
 void AFdestroiTransicao(AF af,int e1,char s,int e2)
 {
     int pos;
-    estado aux =NULL;
+    estado aux;
     estado manipulado;
     
     Lista atual;
@@ -205,18 +234,15 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     pos = retorna_index(af, s);
     
-    aux->prox = af->estados;
+    aux = af->estados;
     /*Encontra o estado que sera manipulado*/
-    while(aux->prox != NULL)
+    while(aux != NULL)
     {
         if(aux->numero == e1)
         {
             manipulado = aux;
         }
-        else
-        {
-            aux = aux->prox;
-        }
+        aux = aux->prox;
     }
     /*Ao fim do laco, o estado a ser manipulado devera ter sido encontrado.*/
     
