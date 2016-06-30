@@ -106,24 +106,27 @@ void AFdestroiEstado(AF af,int e)
     
     /*Destruicao do ESTADO*/
     
-    /*Caso seja o primeiro da lista*/
+    
     if(aux != NULL)
     {
+        /*Caso seja o primeiro da lista*/
         if(aux->numero == e)
         {
             af->estados = aux->prox;
             free(aux);
+            aux = NULL;
         }
         else
         {
-            anterior = af->estados;
-            aux = anterior->prox;
+            anterior = aux;
+            aux = aux->prox;
             while(aux != NULL)
             {
                 if(aux->numero == e)
                 {
                     anterior->prox = aux->prox;
                     free(aux);
+                    aux = NULL;
                 }
                 else
                 {
@@ -161,6 +164,7 @@ void AFdestroiEstado(AF af,int e)
                     {
                         aux->move[i] = transicao->prox;
                         free(transicao);
+                        transicao = NULL;
                     }
                     else
                     {
@@ -172,6 +176,7 @@ void AFdestroiEstado(AF af,int e)
                             {
                                 transicao_anterior->prox = transicao->prox;
                                 free(transicao);
+                                transicao = NULL;
                             }
                             else
                             {
@@ -436,7 +441,7 @@ void AFsalva(AF af,char *nomeArquivo){
       int i;
       
       /*imprimi o cabecalho do arquivo
-       "alfabelo" numero de estados*/
+       "alfabeto" numero de estados*/
       pAux = af->estados;
       fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
       
@@ -478,6 +483,7 @@ void AFsalva(AF af,char *nomeArquivo){
       }
       
       fclose(arq);
+      
   }
 }
 
