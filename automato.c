@@ -1018,3 +1018,4 @@ AF AFfechamento(AF af)
     }
     return NULL;
 }
+
