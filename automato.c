@@ -222,27 +222,36 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     atual = manipulado->move[pos];
     
-    /*caso a pilha tenha q apontar para o novo elemento*/
-    if(atual->numero==e2)
+    /*Verifica se exitem movimentos para esse simbolo*/
+    if(atual != NULL)
     {
-        manipulado->move[pos] = atual->prox;
-        free(atual);
-        atual = NULL;
-    }
-    else
-    {
-        while(atual!=NULL)
+        /*caso a pilha tenha q apontar para o novo elemento*/
+        if(atual->numero==e2)
+        {
+            manipulado->move[pos] = atual->prox;
+            free(atual);
+            atual = NULL;
+        }
+        else
         {
             anterior = atual;
             atual = atual->prox;
-            if(atual->numero==e2)
+            while(atual!=NULL)
             {
-                manipulado->move[pos] = atual->prox;
+                if(atual->numero==e2)
+                {
+                    anterior->prox = atual->prox;
+                    free(atual);
+                    atual = NULL;
+                }
+                else
+                {
+                    anterior = atual;
+                    atual = atual->prox;
+                }
             }
-            /*caso contrario*/
-            atual = atual->prox;
+            /*Ao fim do while, já se obtem a posicao onde está a transicao*/
         }
-        /*Ao fim do while, já se obtem a posicao onde está a transicao*/
     }
 }
 
