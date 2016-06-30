@@ -758,20 +758,31 @@ AF AFminimiza(AF af)
 {
     int i,j;
     int tam = af->num_estados + 1;
-    int matriz[tam][tam];
+    int matriz[tam][tam];/*Matriz que informa se os estados sao ou EQ*/
+    int pendencias[tam][tam]; /*matriz que armazena as pendencias*/
     
     estado aux;
     estado auxfixo;
     
+    Lista transicaofixo;
+    Lista transicao;    
     
     AFrenumera(af);
 
-    /*atribui -1 a todas as posicoes da matriz*/
+    /*atribui o numero de simolos a todas as posicoes da matriz*/
     for(i=0; i<tam; i++)
     {
         for(j=0; j<tam; j++)
         {
-            matriz[i][j] = -1;
+            matriz[i][j] = af->num_simbolos;
+        }
+    }
+    
+    for(i=0; i<tam; i++)
+    {
+        for(j=0; j<tam; j++)
+        {
+            pendencias[i][j] = 0;
         }
     }
     
@@ -787,58 +798,77 @@ AF AFminimiza(AF af)
         while(aux != NULL)
         {
             /*Verifica se os estados em questao não sao o mesmo estado*/
-            if(aux != auxfixo)
+            if(aux->numero != auxfixo->numero)
             {
                 /*Verifica se um e estado final e outro nao. Quando isso acontece, automaticamente não sao equivalentes*/
                 if(auxfixo->final != aux->final)
                 {
                     matriz[auxfixo->numero][aux->numero] = 1;
                 }
-                /*Verificacao de equivalencia dos movimentos*/
+                
+                /*Percorre as transicoes verificando se são iguais*/
                 for(i=0; i<af->num_simbolos; i++)
                 {
-                    /*caso os movimentos em questao (de estados diferentes) sejam iguais
-                     * por exemplo: {(4 "x" 5), (4 "y" 3)} e {(5 "x" 5), (5 "y" 3)}.*/
-                    if(aux->move[i]->numero == auxfixo->move[i]->numero)
+                    transicaofixo = auxfixo->move[i];
+                    transicao = aux->move[i];
+                    
+                    if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
                     {
-                        /*Se a posicao referente na matriz estiver guardando um -1
-                         * significa que é a primeira transicao a ser verificada,
-                         * entao atribui-se o numero de simbolos -1.*/
-                        if(matriz[auxfixo->numero][aux->numero] == -1)
-                        {
-                            matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;
-                        }
-                        /*Caso nao seja a primeira transicao a ser verificada, e a 
-                         * transicao que esta sendo verificada seja esquivalente, 
-                         * entao o numero que está guardado na matris de equivalencias é decrementado. 
-                         * Se os fim do processo esse numero for ZERO, significa que todos as transicoes 
-                         * são equivalentes e, consequentemente os estados sao equivalentes ( 0 )*/
-                        else
+                        matriz[auxfixo->numero][aux->numero]--;/*Quando as transicoes forem equivalentes, o numero guardado na posicao referente a elas é decrementado*/
+                    }/*Caso esse numero seja decrementado até que seja atigido o ZERO, o estado é equivalente*/
+                    else
+                    {
+                        if(matriz[transicaofixo->numero][transicao->numero] == 0)
                         {
                             matriz[auxfixo->numero][aux->numero]--;
-                        }               
+                        }
+                        else
+                        {
+                            pendencias[auxfixo->numero][aux->numero] = 1;
+                        }
                     }
-                    /*Caso os estados sejam equivalentes, a posicao subsequente recebe 
-                     * o tamanho do alfabeto -1, para que ele possa ser decrementado caso existam mais estados equivalentes*/
-                    else if((matriz[auxfixo->move[i]->numero][aux->move[i]->numero] ==1) && (matriz[auxfixo->numero][aux->numero] == -1))
-                    {
-                        matriz[auxfixo->numero][aux->numero] = af->num_simbolos-1;                        
-                    }
-                    /*Caso nao seja a primeira transicao a ser verificada e os estados dessa transicao sejam equivalentes 
-                     * o numero contido na posicao da matriz e decrementado. 
-                     * Se ao fim da iteracao esse numero for ZERO, significa que todos os estados 
-                     * referentes as transicoes dos dois estados susequentes sao equivalentes*/
-                    else if((matriz[auxfixo->move[i]->numero][aux->move[i]->numero] ==1) && (matriz[auxfixo->numero][aux->numero] != -1))
-                    {
-                        matriz[auxfixo->numero][aux->numero]--;
-                    }
-
                 }
                 
             }
             aux = aux->prox;
         }
         auxfixo = auxfixo->prox;
+    }
+    /*TRATAMENTO DE PENDENCIAS*/
+    int cont;
+    for(cont=0;cont<10;cont++)
+    {
+        for(i=0;i<=af->num_simbolos;i++)
+        {
+            for(j=0;j<=af->num_simbolos;j++)
+            {
+                if(pendencias[i][j] == 1)
+                {
+                    /*Percorre as transicoes verificando se são iguais*/
+                    for(i=0; i<af->num_simbolos; i++)
+                    {
+                        transicaofixo = auxfixo->move[i];
+                        transicao = aux->move[i];
+
+                        if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
+                        {
+                            matriz[auxfixo->numero][aux->numero]--;/*Quando as transicoes forem equivalentes, o numero guardado na posicao referente a elas é decrementado*/
+                        }/*Caso esse numero seja decrementado até que seja atigido o ZERO, o estado é equivalente*/
+                        else
+                        {
+                            if(matriz[transicaofixo->numero][transicao->numero] == 0)
+                            {
+                                matriz[auxfixo->numero][aux->numero]--;
+                            }
+                            else
+                            {
+                                pendencias[auxfixo->numero][aux->numero] = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     
