@@ -230,7 +230,7 @@ void AFcriaTransicao(AF af,int e1,char s,int e2)
 
 void AFdestroiTransicao(AF af,int e1,char s,int e2)
 {
-    int pos,first = 1;
+    int pos;
     estado aux;
     estado manipulado = NULL;
     
@@ -253,28 +253,28 @@ void AFdestroiTransicao(AF af,int e1,char s,int e2)
     
     atual = manipulado->move[pos];
     
-    while(atual->numero!=e2)
-    {
-        /*First = 0 indica que a Pilha de ponteiros vai n vai apontar para
-         um novo elemento*/
-        first = 0;
-        anterior = atual;
-        atual = atual->prox;
-    }
-    /*Ao fim do while, já se obtem a posicao onde está a transicao*/
- 
-    /*caso a pilha tenha de apontar para um novo elemento o first vale 1*/
-    if(first==1)
+    /*caso a pilha tenha q apontar para o novo elemento*/
+    if(atual->numero==e2)
     {
         manipulado->move[pos] = atual->prox;
+        free(atual);
+        atual = NULL;
     }
-    /*caso contrario*/
     else
     {
-        anterior->prox = atual->prox;
+        while(atual!=NULL)
+        {
+            anterior = atual;
+            atual = atual->prox;
+            if(atual->numero==e2)
+            {
+                manipulado->move[pos] = atual->prox;
+            }
+            /*caso contrario*/
+            atual = atual->prox;
+        }
+        /*Ao fim do while, já se obtem a posicao onde está a transicao*/
     }
-    atual = NULL;
-    free(atual);
 }
 
 Bool AFestadoInicial(AF af,int e)
