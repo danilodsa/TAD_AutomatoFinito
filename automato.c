@@ -696,16 +696,45 @@ AF AFuniao(AF af1, AF af2)
 
 AF AFrenumera(AF af)
 {
-    estado aux;
+    estado auxfixo;
+    estado auxmovel;
+    Lista  auxtransicao;
     int i = 1;
+    int j;
     
-    aux = af->estados;
+    /*auxfixo é o estado que sera renumerado*/
+    auxfixo = af->estados;
     
-    while(aux != NULL)
+    while(auxfixo != NULL)
     {
-        aux->numero = i;
+        /*auxmovel é o estado no qual se verifica se há transicoes para o auxfixo*/
+        /*Caso haja, deverá ser renumerada, assim como o auxfixo*/
+        auxmovel = af->estados;
+        while(auxmovel != NULL)
+        {
+            /*Percorre o vetor de listas transicoes do estado auxmovel, em busca de transicoes para o aux fixo*/
+            for(j=0; j<af->num_simbolos; j++)
+            {
+                /*auxtransicao recebe a primeira transicao dessa posicao do vetor de listas*/
+                auxtransicao = auxmovel->move[j];
+                /*Percorre as transicoes dessa posicao do vetor*/
+                while(auxtransicao != NULL)
+                {
+                    /*Caso essa transicao seja para o auxfixo, ela será renumerada para o novo numero que auxfixo receberá*/
+                    if(auxtransicao->numero == auxfixo->numero)
+                    {
+                        auxtransicao->numero = i;
+                    }
+                    auxtransicao = auxtransicao->prox;
+                }
+            }
+            auxmovel = auxmovel->prox;
+        }
+        
+        /*Renumera os estados*/
+        auxfixo->numero = i;
         i++;
-        aux = aux->prox;    
+        auxfixo = auxfixo->prox;    
     }
     return af;
 }
@@ -803,28 +832,30 @@ AF AFminimiza(AF af)
                 /*Verifica se um e estado final e outro nao. Quando isso acontece, automaticamente não sao equivalentes*/
                 if(auxfixo->final != aux->final)
                 {
-                    matriz[auxfixo->numero][aux->numero] = 1;
+                    matriz[auxfixo->numero][aux->numero] = -1; /*-1 = Não equivalente*/
                 }
-                
-                /*Percorre as transicoes verificando se são iguais*/
-                for(i=0; i<af->num_simbolos; i++)
+                else
                 {
-                    transicaofixo = auxfixo->move[i];
-                    transicao = aux->move[i];
-                    
-                    if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
+                    /*Percorre as transicoes verificando se são iguais*/
+                    for(i=0; i<af->num_simbolos; i++)
                     {
-                        matriz[auxfixo->numero][aux->numero]--;/*Quando as transicoes forem equivalentes, o numero guardado na posicao referente a elas é decrementado*/
-                    }/*Caso esse numero seja decrementado até que seja atigido o ZERO, o estado é equivalente*/
-                    else
-                    {
-                        if(matriz[transicaofixo->numero][transicao->numero] == 0)
+                        transicaofixo = auxfixo->move[i];
+                        transicao = aux->move[i];
+
+                        if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
                         {
-                            matriz[auxfixo->numero][aux->numero]--;
-                        }
+                            matriz[auxfixo->numero][aux->numero]--;/*Quando as transicoes forem equivalentes, o numero guardado na posicao referente a elas é decrementado*/
+                        }/*Caso esse numero seja decrementado até que seja atigido o ZERO, o estado é equivalente*/
                         else
                         {
-                            pendencias[auxfixo->numero][aux->numero] = 1;
+                            if(matriz[transicaofixo->numero][transicao->numero] == 0)
+                            {
+                                matriz[auxfixo->numero][aux->numero]--;
+                            }
+                            else
+                            {
+                                pendencias[auxfixo->numero][aux->numero] = 1;
+                            }
                         }
                     }
                 }
@@ -836,19 +867,20 @@ AF AFminimiza(AF af)
     }
     /*TRATAMENTO DE PENDENCIAS*/
     int cont;
-    for(cont=0;cont<10;cont++)
+    int k;
+    for(cont=0; cont<10; cont++)
     {
-        for(i=0;i<=af->num_simbolos;i++)
+        for(i=0; i<tam ;i++)
         {
-            for(j=0;j<=af->num_simbolos;j++)
+            for(j=0; j<tam; j++)
             {
                 if(pendencias[i][j] == 1)
                 {
                     /*Percorre as transicoes verificando se são iguais*/
-                    for(i=0; i<af->num_simbolos; i++)
+                    for(k=0; k<af->num_simbolos; k++)
                     {
-                        transicaofixo = auxfixo->move[i];
-                        transicao = aux->move[i];
+                        transicaofixo = auxfixo->move[k];
+                        transicao = aux->move[k];
 
                         if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
                         {
