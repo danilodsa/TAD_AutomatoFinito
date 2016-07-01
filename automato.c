@@ -44,26 +44,29 @@ AF AFdestroi(AF af) {
     estado pAux;
     int i;
 
-    pAux = af->estados;
-
-    while (pAux != NULL) 
+    if(af!=NULL)
     {
-        for (i = 0; i < af->num_simbolos; i++)
+        pAux = af->estados;
+
+        while (pAux != NULL) 
         {
-            aux = pAux->move[i];
-            while (aux != NULL) 
+            for (i = 0; i < af->num_simbolos; i++)
             {
-                del = aux;
-                aux = aux->prox;
-                free(del);
+                aux = pAux->move[i];
+                while (aux != NULL) 
+                {
+                    del = aux;
+                    aux = aux->prox;
+                    free(del);
+                }
             }
+            pDel = pAux;
+            pAux = pAux->prox;
+            free(pDel);
         }
-        pDel = pAux;
-        pAux = pAux->prox;
-        free(pDel);
+        af = NULL;
+        free(af);
     }
-    af = NULL;
-    free(af);
     return af;
 }
 /*(af->num_simbolos+1)*/
