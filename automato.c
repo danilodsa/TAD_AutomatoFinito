@@ -793,17 +793,70 @@ static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2)
 /*Renumera o automato a partir de um numero informado*/
 static AF AFrenumeraPlus(AF af, int n)
 {
+    int** matrizR;
+    int i, j, k;
     estado aux;
+    estado auxfixo;
+    Lista transicao;
+    
+    matrizR = malloc (af->num_estados * sizeof (int *));
+    
+       for (i = 0; i < af->num_estados; ++i)
+          matrizR[i] = malloc (2 * sizeof (int));
     
     aux = af->estados;
     
-    while(aux != NULL)
+    /*Cria tabela de referencias*/
+    for(i=0; i<af->num_estados; i++)
     {
-        aux->numero = n;
-        n++;
-        aux = aux->prox;    
+        matrizR[i][0] = aux->numero;
+        aux = aux->prox;
     }
-    return NULL;
+    
+    for(i=0; i<af->num_estados; i++)
+    {
+        matrizR[i][1] = n;
+        n++;
+    }
+    
+    /*********************************/
+    
+    
+    /*Renumeracao das transicoes*/
+    auxfixo = af->estados;
+    
+    while(auxfixo != NULL)
+    {
+        for(i=0; i<af->num_simbolos; i++)
+        {
+            transicao = auxfixo->move[i];
+            
+            while(transicao != NULL)
+            {
+                for(j=0; j<af->num_estados; j++)
+                {
+                   if(transicao->numero == matrizR[j][0]) 
+                   {
+                       transicao->numero = matrizR[j][1];
+                   }
+                }
+                transicao = transicao->prox;
+            }
+        }
+        auxfixo = auxfixo->prox;
+    }
+    
+    /*Renumeracao dos estados*/
+    
+    aux = af->estados;
+    for(i=0; i<af->num_estados; i++)
+    {
+        aux->numero = matrizR[i][1];
+        aux = aux->prox;
+    }
+    
+    
+    return af;
 }
 
 AF AFminimiza(AF af)
@@ -819,7 +872,7 @@ AF AFminimiza(AF af)
     Lista transicaofixo;
     Lista transicao;    
     
-    AFrenumera(af);
+    af = AFrenumera(af);
 
     /*atribui o numero de simolos a todas as posicoes da matriz*/
     for(i=0; i<tam; i++)
