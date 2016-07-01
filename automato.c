@@ -697,7 +697,7 @@ AF AFuniao(AF af1, AF af2)
 AF AFrenumera(AF af)
 {
     int** matrizR;
-    int cont =0;
+    int cont = 0;
     int i, j, k;
     estado aux;
     estado auxfixo;
@@ -711,17 +711,15 @@ AF AFrenumera(AF af)
     aux = af->estados;
     
     /*Cria tabela de referencias*/
-    while(aux != NULL)
+    for(i=0; i<af->num_estados; i++)
     {
-        matrizR[cont][0] = aux->numero;
+        matrizR[i][0] = aux->numero;
         aux = aux->prox;
-        printf("%d ", matrizR[cont][0]);
-        cont++;
     }
     
     for(i=0; i<af->num_estados; i++)
     {
-        matrizR[i][1] = i+1;  
+        matrizR[i][1] = i+1;        
     }
     
     /*********************************/
@@ -740,7 +738,7 @@ AF AFrenumera(AF af)
             {
                 for(j=0; j<af->num_estados; j++)
                 {
-                   if(matrizR[j][1] == transicao->numero) 
+                   if(transicao->numero == matrizR[j][0]) 
                    {
                        transicao->numero = matrizR[j][1];
                    }
@@ -753,7 +751,12 @@ AF AFrenumera(AF af)
     
     /*Renumeracao dos estados*/
     
-    
+    aux = af->estados;
+    for(i=0; i<af->num_estados; i++)
+    {
+        aux->numero = matrizR[i][1];
+        aux = aux->prox;
+    }
     
     
     return af;
