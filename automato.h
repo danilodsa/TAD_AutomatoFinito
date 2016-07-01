@@ -95,4 +95,13 @@ AF AFcarrega(char* nomedoarquivo);
 /*Renumera os estados de um automato partindo do 1*/
 AF AFrenumera(AF af);
 
+/*Converte um automato com moviento vazio para um automato finito não determinístico*/
+AF AFafv2afn(AF afv);
+
+/*Converte um automato não determinístico para um automato determinístico*/
+AF AFafn2afd(AF afv);
+
+/*Efetura a diferenca entre dois automatos*/
+AF AFdiferenca(AF af1, AF af2);
+
 #endif	/* AUTOMATO_H */

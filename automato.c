@@ -609,7 +609,7 @@ AF AFnegacao(AF af)
     
     aux = af->estados;
     
-    while(aux->prox != NULL)
+    while(aux != NULL)
     {
         if(aux->final == TRUE)
         {
@@ -619,6 +619,7 @@ AF AFnegacao(AF af)
         {
             aux->final = TRUE;
         }
+        aux = aux->prox;
     }
     return af;
 }
@@ -744,7 +745,6 @@ AF AFuniao(AF af1, AF af2)
 AF AFrenumera(AF af)
 {
     int** matrizR;
-    int cont = 0;
     int i, j, k;
     estado aux;
     estado auxfixo;
@@ -1216,5 +1216,20 @@ AF AFfechamento(AF af)
         }
     }
     return NULL;
+}
+
+AF AFdiferenca(AF af1, AF af2)
+{
+    
+}
+
+AF AFafv2afn(AF afv)
+{
+    
+}
+
+AF AFafn2afd(AF afv)
+{
+    
 }
 
