@@ -696,46 +696,63 @@ AF AFuniao(AF af1, AF af2)
 
 AF AFrenumera(AF af)
 {
+    int matrizR[af->num_estados][2];
+    int i =0;
+    int j, k;
+    estado aux;
     estado auxfixo;
-    estado auxmovel;
-    Lista  auxtransicao;
-    int i = 1;
-    int j;
+    Lista transicao;
     
-    /*auxfixo é o estado que sera renumerado*/
+    
+    aux = af->estados;
+    
+    /*Cria tabela de referencias*/
+    while(aux != NULL)
+    {
+        matrizR[i][0] = aux->numero;
+        
+        aux = aux->prox;
+        i++;
+    }
+    
+    for(i=0; i<af->num_estados; i++)
+    {
+        matrizR[i][1] = i+1;
+        
+        printf("%d", matrizR[i][1]);
+    }
+    /*********************************/
+    
+    
+    /*Renumeracao das transicoes*/
     auxfixo = af->estados;
     
     while(auxfixo != NULL)
     {
-        /*auxmovel é o estado no qual se verifica se há transicoes para o auxfixo*/
-        /*Caso haja, deverá ser renumerada, assim como o auxfixo*/
-        auxmovel = af->estados;
-        while(auxmovel != NULL)
+        for(i=0; i<af->num_simbolos; i++)
         {
-            /*Percorre o vetor de listas transicoes do estado auxmovel, em busca de transicoes para o aux fixo*/
-            for(j=0; j<af->num_simbolos; j++)
+            transicao = auxfixo->move[i];
+            
+            while(transicao != NULL)
             {
-                /*auxtransicao recebe a primeira transicao dessa posicao do vetor de listas*/
-                auxtransicao = auxmovel->move[j];
-                /*Percorre as transicoes dessa posicao do vetor*/
-                while(auxtransicao != NULL)
+                for(j=0; j<af->num_estados; j++)
                 {
-                    /*Caso essa transicao seja para o auxfixo, ela será renumerada para o novo numero que auxfixo receberá*/
-                    if(auxtransicao->numero == auxfixo->numero)
-                    {
-                        auxtransicao->numero = i;
-                    }
-                    auxtransicao = auxtransicao->prox;
+                   if(matrizR[j][1] == transicao->numero) 
+                   {
+                       transicao->numero = matrizR[j][1];
+                   }
                 }
+                transicao = transicao->prox;
             }
-            auxmovel = auxmovel->prox;
         }
-        
-        /*Renumera os estados*/
-        auxfixo->numero = i;
-        i++;
-        auxfixo = auxfixo->prox;    
+        auxfixo = auxfixo->prox;
     }
+    
+    /*Renumeracao dos estados*/
+    
+    
+    
+    
     return af;
 }
 
@@ -874,29 +891,40 @@ AF AFminimiza(AF af)
         {
             for(j=0; j<tam; j++)
             {
-                if(pendencias[i][j] == 1)
+                if(pendencias[i][j] == 1)/*Caso exista uma pendencia*/
                 {
-                    /*Percorre as transicoes verificando se são iguais*/
-                    for(k=0; k<af->num_simbolos; k++)
+                    matriz[i][j] = af->num_simbolos;
+                    auxfixo = af->estados;
+                    aux = af->estados;
+                    /*encontrar o auxfixo*/
+                    while(auxfixo != NULL)
                     {
-                        transicaofixo = auxfixo->move[k];
-                        transicao = aux->move[k];
-
-                        if(transicaofixo->numero == transicao->numero)/*Quando as transicoes sao identicas, oviamente são equivalentes*/
+                        if(auxfixo->numero == i)
                         {
-                            matriz[auxfixo->numero][aux->numero]--;/*Quando as transicoes forem equivalentes, o numero guardado na posicao referente a elas é decrementado*/
-                        }/*Caso esse numero seja decrementado até que seja atigido o ZERO, o estado é equivalente*/
-                        else
-                        {
-                            if(matriz[transicaofixo->numero][transicao->numero] == 0)
+                            while(aux != NULL)
                             {
-                                matriz[auxfixo->numero][aux->numero]--;
-                            }
-                            else
-                            {
-                                pendencias[auxfixo->numero][aux->numero] = 1;
+                                if(aux->numero == j)
+                                {
+                                    /*Neste ponto já se tem os estados I e J*/
+                                    for(k=0; k<af->num_simbolos; k++)
+                                    {
+                                       transicaofixo = auxfixo->move[k];
+                                       transicao = aux->move[k];
+                                       /*Compara as transicoes*/
+                                       if(matriz[transicaofixo->numero][transicao->numero] == 0)
+                                       {
+                                           matriz[i][j]--;
+                                           if(matriz[i][j] == 0)
+                                           {
+                                               pendencias[i][j] = 0;
+                                           }
+                                       }
+                                    }
+                                }
+                                aux = aux->prox;
                             }
                         }
+                        auxfixo = auxfixo->prox;
                     }
                 }
             }
@@ -909,9 +937,9 @@ AF AFminimiza(AF af)
   /**********************Minimizacao do automato*******************************/ 
   /****************************************************************************/     
     
-    for(i=0; i<af->num_estados; i++)
+    for(i=0; i<tam; i++)
     {
-        for(j=0; j<af->num_estados; j++)
+        for(j=0; j<tam; j++)
         {
             if(i != j)
             {
@@ -921,6 +949,7 @@ AF AFminimiza(AF af)
                 {
                     if(i > j)
                     {
+                        /*Remove o estado I*/
                         estado anterior;
                         
                         aux = af->estados;
@@ -933,6 +962,7 @@ AF AFminimiza(AF af)
                             {
                                 anterior = aux->prox;
                                 free(aux);
+                                aux = NULL;
                             }
                             
                             int k;
@@ -966,6 +996,7 @@ AF AFminimiza(AF af)
                             {
                                 anterior = aux->prox;
                                 free(aux);
+                                aux = NULL;
                             }
                             
                             int k;
