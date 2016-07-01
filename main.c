@@ -157,7 +157,6 @@ int main(int argc, char** argv) {
                 automatoTemp = AFminimiza(automatoA);
                 if(automatoTemp!=NULL)                
                 {
-                    automatoTemp;
                     AFsalva(automatoTemp,"minimizado.txt");
                     printf(">>minimizacao executada, arquivo minimizado.txt criado<<\n");
                     printf(">>O automato original nao foi modificado<<\n");
@@ -205,7 +204,8 @@ int main(int argc, char** argv) {
                 scanf("%s",pA);
                 automatoB = AFcarrega(pA);
                 automatoTemp = AFuniao(automatoA,automatoB);
-                printf(">>uniao de automatos executada<<\n");
+                AFsalva(automatoTemp,"uniao.txt");
+                printf(">>uniao de automatos executada, arquivo uniao.txt salvo <<\n");
                 break;
             case 0:
                 AFdestroi(automatoA);

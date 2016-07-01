@@ -427,7 +427,7 @@ void AFsalva(AF af,char *nomeArquivo){
       fprintf(arq,"\"%s\" %i\n",af->alfabeto,af->num_estados);
       
       /*perocorre todos os estados disponiveis e imprimi suas informacoes*/
-      for(i=0;i<af->num_estados;i++)
+      while(pAux != NULL)
       {
           fprintf(arq,"%i",pAux->numero);
           /*caso o estado for inicial imprime i*/
@@ -451,13 +451,20 @@ void AFsalva(AF af,char *nomeArquivo){
       while(pAux!=NULL)
       {
           /*imprime a pilha de transicao por simbolo do alfabeto*/
-          for(i=0;i<af->num_simbolos;i++)
+          for(i=0;i<af->num_simbolos+1;i++)
           {
               aux = pAux->move[i];
               while(aux!=NULL)
               {
-                fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
-                aux = aux->prox;
+                  if(af->alfabeto[i]!='\0')
+                  {
+                      fprintf(arq,"%i \"%c\" %i\n",pAux->numero,af->alfabeto[i],aux->numero);
+                  }
+                  else
+                  {
+                      fprintf(arq,"%i \"E\" %i\n",pAux->numero,aux->numero);
+                  }
+                  aux = aux->prox;
               }
           }
           pAux = pAux->prox;
@@ -622,21 +629,23 @@ AF AFuniao(AF af1, AF af2)
     estado auxf3;
     estado aux;    
 
+    int i;
+    
+    
+    Lista auxtransicao;
+    
+    
     /*Juncao dos alfabetos do af1 e af2*/
     char* alfabeto3;
     char* temp;
     
     /*Renumera os estados do primeiro automato a partir de 10*/
-    AFrenumeraPlus(af1, 10);
+    AFrenumeraPlus(af1, 3);
     
     /*Renumera os estados do segundo automato a partir de 20*/
-    AFrenumeraPlus(af2, 20);
+    AFrenumeraPlus(af2, af1->num_estados+3);
     
-    temp = concatenaAlfabetos(af1->alfabeto, af2->alfabeto);
-    alfabeto3 = (char*) malloc(strlen(temp)*sizeof(char));
-    
-    /*funcao de juncao dos alfabetos*/
-    strcpy(alfabeto3,temp);
+    alfabeto3 = concatenaAlfabetos(af1->alfabeto, af2->alfabeto);
     
     /*cria o novo automato*/
     af3 = AFcria(alfabeto3);
@@ -646,53 +655,88 @@ AF AFuniao(AF af1, AF af2)
     
     /*cria o novo estado final, que recebe a transicao 'vazio' dos estados finais dos outros dois automatos*/
     AFcriaEstado(af3, 2, FALSE, TRUE);
-    
-    auxf3 = af3->estados;
+       
+    /*Copia todos os estados do AF1 para o AF3*/
     aux = af1->estados;
-    
-    
     while(aux != NULL)
     {
-        auxf3 = aux;
-        
-        if(auxf3->inicial == TRUE)
-        {
-            AFcriaTransicao(af3, 1, '\0', auxf3->numero);
-            auxf3->inicial = FALSE;
-        }
-        if(auxf3->final == TRUE)
-        {
-            AFcriaTransicao(af3, auxf3->numero, '\0', 2);
-            auxf3->final = FALSE;
-        }
+        AFcriaEstado(af3, aux->numero, aux->inicial, aux->final);
         aux = aux->prox;
-        auxf3 = auxf3->prox;   
     }
     
+    /*Copia todas as transicoes do AF1 para o AF3*/
+    aux = af1->estados;
+    while(aux != NULL)
+    {
+        for(i=0; i<af1->num_simbolos; i++)
+        {
+            auxtransicao = aux->move[i];
+            while(auxtransicao != NULL)
+            {
+                /*Quando fiz este trecho de código, apenas eu e Deus sabiamos o que eu estava fazendo. Agora apenas Deus sabe.*/
+                AFcriaTransicao(af3, aux->numero, af1->alfabeto[i], auxtransicao->numero);
+                auxtransicao = auxtransicao->prox;
+            }
+        }        
+        aux = aux->prox;
+    }   
     
+    /*Copia todos os estados do AF2 para o AF3*/
     aux = af2->estados;
-    
     while(aux != NULL)
     {
-        auxf3 = aux;
-        
-        if(auxf3->inicial == TRUE)
-        {
-            AFcriaTransicao(af3, 1, '\0', auxf3->numero);
-            auxf3->inicial = FALSE;
-        }
-        if(auxf3->final == TRUE)
-        {
-            AFcriaTransicao(af3, auxf3->numero, '\0', 2);
-            auxf3->final = FALSE;
-        }
+        AFcriaEstado(af3, aux->numero, aux->inicial, aux->final);
         aux = aux->prox;
-        auxf3 = auxf3->prox;   
     }
     
-    af3->num_estados = af1->num_estados + af2->num_estados + 2;
-    af3->num_simbolos = strlen(alfabeto3);
+    /*Copia todas as transicoes do AF2 para o AF3*/
+    aux = af2->estados;
+    while(aux != NULL)
+    {
+        for(i=0; i<af2->num_simbolos; i++)
+        {
+            auxtransicao = aux->move[i];
+            while(auxtransicao != NULL)
+            {
+                /*Quando fiz este trecho de código, apenas eu e Deus sabiamos o que eu estava fazendo. Agora apenas Deus sabe.*/
+                AFcriaTransicao(af3, aux->numero, af2->alfabeto[i], auxtransicao->numero);
+                auxtransicao = auxtransicao->prox;
+            }
+        }        
+        aux = aux->prox;
+    }
+    /*Uniao efetiva dos automatos*/
+    aux = af3->estados;
+    while(aux != NULL)
+    {
+        /*Verifica se os automatos em questao não sao o 1(inicial) e o 2(final)*/
+        if((aux->numero != 1) && (aux->numero != 2))
+        {
+            /*Verifica se o estado em questao é INICIAL*/
+            if(aux->inicial == TRUE)
+            {
+                /*Caso seja inicial, cria-se uma transicao do 1 para o estado, utilizano o simbolo vazio*/
+                /*E o estado deixa de ser inicial*/
+                aux->inicial = FALSE;
+                AFcriaTransicao(af3, 1, '\0', aux->numero); 
+            }
+            /*Verifica se o estado em questao é FINAL*/
+            if(aux->final == TRUE)
+            {
+                /*Caso seja final, cria-se uma transicao do estado em questao para o estado 2, utilizano o simbolo vazio*/
+                /*E o estado deixa de ser inicial*/                
+                aux->final = FALSE;
+                AFcriaTransicao(af3, aux->numero, '\0', 2);
+            }
+        }
+        aux = aux->prox;
+    }
     
+    /*Define o numero de estados sendo a soma do numero de estados dos dois automatos integrantes da UNIAO*/
+    af3->num_estados = af1->num_estados + af2->num_estados + 2;
+    /*Define o numero de simbolos sendo o tamanho do alfabeto resultante da concatenacao dos alfabetos dos dois automatos ingrantes da UNIAO*/
+    af3->num_simbolos = strlen(alfabeto3);
+
     return af3;
     
 }
