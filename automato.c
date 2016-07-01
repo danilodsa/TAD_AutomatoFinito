@@ -696,31 +696,35 @@ AF AFuniao(AF af1, AF af2)
 
 AF AFrenumera(AF af)
 {
-    int matrizR[af->num_estados][2];
-    int i =0;
-    int j, k;
+    int** matrizR;
+    int cont =0;
+    int i, j, k;
     estado aux;
     estado auxfixo;
     Lista transicao;
     
+    matrizR = malloc (af->num_estados * sizeof (int *));
+    
+       for (i = 0; i < af->num_estados; ++i)
+          matrizR[i] = malloc (2 * sizeof (int));
     
     aux = af->estados;
     
     /*Cria tabela de referencias*/
     while(aux != NULL)
     {
-        matrizR[i][0] = aux->numero;
-        
+        matrizR[cont][0] = aux->numero;
         aux = aux->prox;
-        i++;
+        cont++;
+        
+        printf("%d ", matrizR[cont][0]);
     }
     
     for(i=0; i<af->num_estados; i++)
     {
-        matrizR[i][1] = i+1;
-        
-        printf("%d", matrizR[i][1]);
+        matrizR[i][1] = i+1;  
     }
+    
     /*********************************/
     
     
