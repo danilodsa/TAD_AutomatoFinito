@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
         printf("18 - AFrenumera\n");
         printf("19 - AFsalva\n");
         printf("20 - AFuniao\n");
+        printf("0 - Sair\n");
         scanf("%i",&op);
         fgets(parametros,100,stdin);
         switch(op)
@@ -198,13 +199,15 @@ int main(int argc, char** argv) {
                 AFsalva(automatoA,pA);
                 printf(">>automato salvo, confira se o arquivo de saida existe<<\n");
                 break;
+            /**/
             case 20:
                 printf(">>Automato B(nome de arquivo)<< ");
                 scanf("%s",pA);
                 automatoB = AFcarrega(pA);
                 automatoTemp = AFuniao(automatoA,automatoB);
+                printf(">>uniao de automatos executada<<\n");
                 break;
-            case -1:
+            case 0:
                 AFdestroi(automatoA);
                 AFdestroi(automatoB);
                 AFdestroi(automatoTemp);
