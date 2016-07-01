@@ -715,9 +715,8 @@ AF AFrenumera(AF af)
     {
         matrizR[cont][0] = aux->numero;
         aux = aux->prox;
-        cont++;
-        
         printf("%d ", matrizR[cont][0]);
+        cont++;
     }
     
     for(i=0; i<af->num_estados; i++)
