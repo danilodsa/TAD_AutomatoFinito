@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
         printf("18 - AFrenumera\n");
         printf("19 - AFsalva\n");
         printf("20 - AFuniao\n");
+        printf("21 - AFafv2afn\n");
         printf("0 - Sair\n");
         scanf("%i",&op);
         fgets(parametros,100,stdin);
@@ -207,6 +208,10 @@ int main(int argc, char** argv) {
                 AFsalva(automatoTemp,"uniao.txt");
                 printf(">>uniao de automatos executada, arquivo uniao.txt salvo <<\n");
                 break;
+            case 21:
+                automatoB = AFafv2afn(automatoTemp);
+                AFsalva(automatoB,"afn.txt");
+                printf("funfou");
             case 0:
                 AFdestroi(automatoA);
                 AFdestroi(automatoB);
