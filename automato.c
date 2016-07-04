@@ -7,6 +7,7 @@
 static int retorna_index(AF af, char s);
 static AF AFrenumeraPlus(AF af, int n);
 static char* concatenaAlfabetos(char* alfabeto1, char* alfabeto2);
+static estado retornaEstado(AF af, int n);
 
 AF AFcria(char *alfabeto)
 {
@@ -1218,13 +1219,109 @@ AF AFfechamento(AF af)
     return NULL;
 }
 
-AF AFdiferenca(AF af1, AF af2)
-{
-    
-}
-
 AF AFafv2afn(AF afv)
 {
+    AF afn;
+    estado auxestadoAFV;
+    estado auxestadoAFN;
+    Lista auxtransicaoAFV;
+    int pos;
+    int i;
+    int cont = 0;
+    
+    /*Cria o automato que ao fim será a conversao de AFV para AFN*/
+    afn = AFcria(afv->alfabeto);
+    
+    /*Retorna em qual posicao do alfabeto esta o VAZIO*/
+    pos = retorna_index(afv, '\0');
+    
+    auxestadoAFN = afn->estados;
+    auxestadoAFV = afv->estados;
+
+    /*Conta quantos estados possuem transicoes com o movimento vazio e os cria no AFN*/
+    while(auxestadoAFV != NULL)
+    {
+        auxtransicaoAFV = auxestadoAFV->move[pos];
+        if(auxtransicaoAFV != NULL)
+        {
+            AFcriaEstado(afn, auxestadoAFV->numero, auxestadoAFV->inicial, auxestadoAFV->final);
+        }
+        auxestadoAFV = auxestadoAFV->prox;
+    }
+    
+    auxestadoAFN = afn->estados;
+    auxestadoAFV = afv->estados;
+    
+    estado intermediario;
+    estado futuro;
+    Lista  transicao_intermediario;
+                
+    /*Remove o movimento vazio das transicoes*/
+    while(auxestadoAFV != NULL)
+    {
+        auxtransicaoAFV = auxestadoAFV->move[pos];
+        while(auxtransicaoAFV != NULL)
+        {
+            intermediario = retornaEstado(afv, auxtransicaoAFV->numero);
+            /*Verifica se o estado move com o vazio para um estado final, se sim, ele se torna estado final*/
+            if(intermediario->final == TRUE)
+            {
+                /*O estado que aponta para  deve ser final*/
+                AFcriaEstado(afn, auxestadoAFV->numero, auxestadoAFV->inicial, TRUE);
+                for(i=0; i<afv->num_simbolos; i++)
+                {
+                    transicao_intermediario = auxestadoAFV->move[i];
+                    while(transicao_intermediario != NULL)
+                    {
+                        AFcriaTransicao(afn, auxestadoAFV->numero, afv->alfabeto[i], transicao_intermediario->numero);
+                        transicao_intermediario = transicao_intermediario->prox;
+                    }
+                }
+            }
+            else
+            {
+                for(i=0; i<afv->num_simbolos; i++)
+                {
+                    transicao_intermediario = intermediario->move[i];
+                    while(transicao_intermediario != NULL)
+                    {
+                        AFcriaTransicao(afn, auxestadoAFV->numero, afv->alfabeto[i], transicao_intermediario->numero);
+                        transicao_intermediario = transicao_intermediario->prox;
+                    }
+                }
+            }
+            auxtransicaoAFV = auxtransicaoAFV->prox;
+        }
+        return afn;
+    }
+    
+    
+    
+    /*Copia os outros estados para o novo automato*/
+
+    auxestadoAFN = afn->estados;
+    auxestadoAFV = afv->estados;
+
+    while(auxestadoAFN != NULL)
+    {
+        while(auxestadoAFV != NULL)
+        {
+            /*Verifica se o estado atual já não havia sido inserido*/
+            if(auxestadoAFN->numero != auxestadoAFV->numero)
+            {
+                AFcriaEstado(afn, auxestadoAFV->numero, auxestadoAFV->inicial, auxestadoAFV->final);
+                /*Percorre o vetor de transicoes e as cria no novo automato*/
+                for(i=0; i<afv->num_simbolos; i++)
+                {
+                    auxtransicaoAFV = auxestadoAFV->move[i];
+                    while(auxtransicaoAFV != NULL)
+                    {
+                        AFcriaTransicao(afn, auxestadoAFV->numero, afv->alfabeto[i], auxtransicaoAFV->numero);
+                    }
+                }    
+            }
+        }
+    }
     
 }
 
@@ -1233,3 +1330,20 @@ AF AFafn2afd(AF afv)
     
 }
 
+/*Dado um numero, retorna o estado dele*/
+static estado retornaEstado(AF af, int n)
+{
+    estado aux;
+    
+    aux = af->estados;
+    
+    while(aux != NULL)
+    {
+        if(aux->numero == n)
+        {
+            return aux;
+        }
+        aux = aux->prox;
+    }
+    return NULL;
+}
