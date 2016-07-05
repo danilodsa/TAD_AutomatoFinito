@@ -1437,3 +1437,17 @@ AF AFconcatenacao(AF af1, AF af2)
     }
     return af3;
 }
+
+AF AFintercessao(AF af1, AF af2)
+{
+    AF resultado;
+    
+    af1 = AFnegacao(af1);
+    af2 = AFnegacao(af2);
+    
+    resultado = AFuniao(af1,af2);
+    
+    resultado = AFnegacao(resultado);
+    
+    return resultado;
+}
