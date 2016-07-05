@@ -1351,7 +1351,7 @@ static estado retornaEstado(AF af, int n)
 AF AFconcatenacao(AF af1, AF af2)
 {
     AF      af3;
-    estado  auxestado,auxInicial;
+    estado  auxestado,auxInicial,achaFinal;
     Lista   auxtransicao;
     char*   temp;
     int     i;
@@ -1366,7 +1366,7 @@ AF AFconcatenacao(AF af1, AF af2)
     AFrenumera(af1);
     
     /*renumera o automato de acordo com a quantidade de simbolos no automato*/
-    AFrenumeraPlus(af2,af1->num_simbolos+1);
+    AFrenumeraPlus(af2,af1->num_estados+1);
     
     /*procura pelo estado inicial do automato 2*/
     auxInicial = NULL;
@@ -1416,7 +1416,14 @@ AF AFconcatenacao(AF af1, AF af2)
     while(auxestado != NULL)
     {
         /*cria os estados e transicoes como padrão*/
-        AFcriaEstado(af3,auxestado->numero,auxestado->inicial,auxestado->final);
+        if((auxestado->final != FALSE) && (auxestado->numero != auxInicial->numero))
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,FALSE);
+        }
+        else
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,auxestado->final);
+        }
         for(i=0;i<af3->num_simbolos;i++)
         {
             auxtransicao = auxestado->move[i];
