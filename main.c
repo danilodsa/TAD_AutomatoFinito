@@ -267,7 +267,7 @@ int func(char* funcao)
     
     /*sair de forma segura*/
     if(strcmp(funcao,"SAIR")==0)
-        return -1;
+        return 0;
 }
 
 Bool identifica(char* valor){
