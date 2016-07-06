@@ -1460,3 +1460,4 @@ AF AFintercessao(AF af1, AF af2)
     
     return resultado;
 }
+/*fim*/
