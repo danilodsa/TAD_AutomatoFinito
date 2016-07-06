@@ -101,5 +101,16 @@ AF AFafv2afn(AF afv);
 /*Converte um automato não determinístico para um automato determinístico*/
 AF AFafn2afd(AF afv);
 
+/*Concatena dois automatos*/
+AF AFconcatenacao(AF af1,AF af2);
+
+/*Nega um automato*/
+AF AFnegacao(AF af1);
+
+/*faz a uniao entre automatos*/
+AF AFuniao(AF af1, AF af2);
+
+/*Intercessao entre automatos*/
+AF AFintercessao(AF af1, AF af2);
 
 #endif	/* AUTOMATO_H */

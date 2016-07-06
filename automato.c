@@ -1356,3 +1356,107 @@ static estado retornaEstado(AF af, int n)
     }
     return NULL;
 }
+
+AF AFconcatenacao(AF af1, AF af2)
+{
+    AF      af3;
+    estado  auxestado,auxInicial,achaFinal;
+    Lista   auxtransicao;
+    char*   temp;
+    int     i;
+    
+    /*concatena os alfabetos de ambos automatos*/
+    temp = concatenaAlfabetos(af1->alfabeto,af2->alfabeto);
+    
+    /*cria o automato futuramente concatenado*/
+    af3 = AFcria(temp);
+    
+    /*renumera o primeiro automato*/
+    AFrenumera(af1);
+    
+    /*renumera o automato de acordo com a quantidade de simbolos no automato*/
+    AFrenumeraPlus(af2,af1->num_estados+1);
+    
+    /*procura pelo estado inicial do automato 2*/
+    auxInicial = NULL;
+    auxestado = af2->estados;
+    while(auxInicial == NULL)
+    {
+        if(auxestado->inicial == TRUE)
+        {
+            auxInicial = auxestado;
+        }
+        auxestado = auxestado->prox;
+    }
+    
+    /*topo da pilha de estados*/
+    auxestado = af1->estados;
+    while(auxestado != NULL)
+    {
+        /*caso não seja estado final cria o estado normalmente*/
+        if(auxestado->final != TRUE)
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,auxestado->final);
+        }
+        /*caso contrario o estado final passar a ser um estado nao final*/
+        else
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,FALSE);
+            /*transicao com movimento vazio para o estado inicial do segundo automato*/
+            AFcriaTransicao(af3,auxestado->numero,'\0',auxInicial->numero);
+        }
+        /*cria as demais transicoes do estado*/
+        for(i=0;i<af3->num_simbolos;i++)
+        {
+            auxtransicao = auxestado->move[i];
+            while(auxtransicao != NULL)
+            {
+                AFcriaTransicao(af3,auxestado->numero,af3->alfabeto[i],auxtransicao->numero);
+                auxtransicao = auxtransicao->prox;
+            }
+        }
+        auxestado = auxestado->prox;
+    }
+    
+    /*seta a auxiliar de estado para o topo da pilha*/
+    auxestado = af2->estados;
+    /*o estado inicial do 2 automato e definido como estado nao inicial*/
+    auxInicial->inicial = FALSE;
+    while(auxestado != NULL)
+    {
+        /*cria os estados e transicoes como padrão*/
+        if((auxestado->final != FALSE) && (auxestado->numero != auxInicial->numero))
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,FALSE);
+        }
+        else
+        {
+            AFcriaEstado(af3,auxestado->numero,auxestado->inicial,auxestado->final);
+        }
+        for(i=0;i<af3->num_simbolos;i++)
+        {
+            auxtransicao = auxestado->move[i];
+            while(auxtransicao != NULL)
+            {
+                AFcriaTransicao(af3,auxestado->numero,af3->alfabeto[i],auxtransicao->numero);
+                auxtransicao = auxtransicao->prox;
+            }
+        }
+        auxestado = auxestado->prox;
+    }
+    return af3;
+}
+
+AF AFintercessao(AF af1, AF af2)
+{
+    AF resultado;
+    
+    af1 = AFnegacao(af1);
+    af2 = AFnegacao(af2);
+    
+    resultado = AFuniao(af1,af2);
+    
+    resultado = AFnegacao(resultado);
+    
+    return resultado;
+}
