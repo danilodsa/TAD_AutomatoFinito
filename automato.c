@@ -1190,15 +1190,29 @@ Bool AFequiv(AF af1, AF af2)
 AF AFfechamento(AF af)
 {
     estado aux;
+    estado aux2;
     int inicial;
+    int pos;
     
     aux = af->estados;
+    aux2 = af->estados;
+    
+    pos = retorna_index(af, '\0');
     
     while(aux != NULL)
     {
         if(aux->inicial == TRUE)
         {
             inicial = aux->numero;
+            
+            while(aux2 != NULL)
+            {
+                if(aux2->final == TRUE)
+                {
+                    AFcriaTransicao(af, inicial, af->alfabeto[pos], aux2->numero);
+                }
+                aux2 = aux2->prox;
+            }
         }
     }
     
@@ -1207,16 +1221,11 @@ AF AFfechamento(AF af)
     while(aux != NULL)
     {
         if(aux->final == TRUE)
-        {
-            int pos;
-
-            pos = retorna_index(af, '\0');
-            
-            aux->move[pos]->numero = inicial;
-
+        {   
+            AFcriaTransicao(af, aux->numero, af->alfabeto[pos], inicial);
         }
     }
-    return NULL;
+    return af;
 }
 
 AF AFafv2afn(AF afv)
@@ -1451,3 +1460,4 @@ AF AFintercessao(AF af1, AF af2)
     
     return resultado;
 }
+/*fim*/
