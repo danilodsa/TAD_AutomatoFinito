@@ -113,4 +113,7 @@ AF AFuniao(AF af1, AF af2);
 /*Intercessao entre automatos*/
 AF AFintercessao(AF af1, AF af2);
 
+/*fechamento de automato*/
+AF AFfechamento(AF af);
+
 #endif	/* AUTOMATO_H */
