@@ -1460,4 +1460,17 @@ AF AFintercessao(AF af1, AF af2)
     
     return resultado;
 }
+
+AF AFdiferenca(AF af1,AF af2)
+{
+    AF af3;
+    
+    /*nega o automato 2*/
+    af2 = AFnegacao(af2);
+    
+    /*faz a intercessao de ambos automatos*/
+    af3 = AFintercessao(af1,af2);
+    
+    return af3;
+}
 /*fim*/
