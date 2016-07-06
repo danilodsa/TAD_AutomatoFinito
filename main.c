@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     autoA = AFcarrega("af.txt");
     autoB = AFcarrega("af4.txt");
     
-    resulta = AFconcatenacao(autoA,autoB);
+    resulta = AFintercessao(autoA,autoB);
     
     return (EXIT_SUCCESS);
 }
